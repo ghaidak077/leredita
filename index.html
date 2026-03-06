@@ -1274,12 +1274,15 @@
 ================================================================ -->
 <section id="hero">
   <div id="hero-media">
-    <video id="hero-video" autoplay muted loop playsinline
+    <video id="hero-video" autoplay muted loop playsinline preload="auto"
       poster="hero-poster.jpg"
-      data-fallback-poster="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&q=90&w=1920"
-      onerror="this.querySelector('source').src=this.querySelector('source').dataset.fallback;this.load()">
-      <source src="hero.mp4" type="video/mp4"
-              data-fallback="https://videos.pexels.com/video-files/3196175/3196175-hd_1920_1080_30fps.mp4"/>
+      data-fallback-poster="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&q=90&w=1920">
+      <!-- Local file first — place hero.mp4 in the same folder as this HTML -->
+      <source src="hero.mp4"  type="video/mp4; codecs=avc1.42E01E,mp4a.40.2"/>
+      <source src="hero.mp4"  type="video/mp4"/>
+      <!-- CDN fallback — used automatically if hero.mp4 is missing or blocked -->
+      <source src="https://videos.pexels.com/video-files/3196175/3196175-hd_1920_1080_30fps.mp4" type="video/mp4"/>
+      <source src="https://videos.pexels.com/video-files/2829177/2829177-hd_1280_720_30fps.mp4" type="video/mp4"/>
     </video>
   </div>
 
@@ -1772,7 +1775,7 @@
     }, {once: true});
   });
 
-  /* ── video: on error swap source to fallback and reload ────── */
+  /* ── video: robust fallback for hosting environments ────────── */
   var vid = document.getElementById('hero-video');
   if(vid){
     /* poster fallback */
@@ -1783,25 +1786,46 @@
       pi2.src = vid.getAttribute('poster');
     }
 
-    /* source fallback — fires when no source can be loaded */
-    vid.addEventListener('error', swapVideo, {once:true});
-    vid.addEventListener('stalled', function(){
-      setTimeout(function(){ if(vid.readyState < 2) swapVideo(); }, 4000);
+    var cdnSrcs = [
+      'https://videos.pexels.com/video-files/3196175/3196175-hd_1920_1080_30fps.mp4',
+      'https://videos.pexels.com/video-files/2829177/2829177-hd_1280_720_30fps.mp4'
+    ];
+    var didSwap = false;
+
+    function useCDN(){
+      if(didSwap) return;
+      didSwap = true;
+      /* remove all existing sources */
+      while(vid.firstChild) vid.removeChild(vid.firstChild);
+      /* add CDN sources */
+      cdnSrcs.forEach(function(url){
+        var s = document.createElement('source');
+        s.src = url; s.type = 'video/mp4';
+        vid.appendChild(s);
+      });
+      vid.load();
+      vid.play().catch(function(){});
+    }
+
+    /* if video can't play within 6s, switch to CDN */
+    var timeout = setTimeout(useCDN, 6000);
+
+    vid.addEventListener('canplay', function(){
+      clearTimeout(timeout); /* local file works fine */
     }, {once:true});
 
-    function swapVideo(){
-      var src = vid.querySelector('source[data-fallback]');
-      if(src && src.src !== src.dataset.fallback){
-        src.setAttribute('src', src.dataset.fallback);
-        /* second fallback line */
-        var s2 = document.createElement('source');
-        s2.src  = 'https://videos.pexels.com/video-files/2829177/2829177-hd_1280_720_30fps.mp4';
-        s2.type = 'video/mp4';
-        vid.appendChild(s2);
-        vid.load();
-        vid.play().catch(function(){});
-      }
-    }
+    /* error on the video element itself */
+    vid.addEventListener('error', function(){ clearTimeout(timeout); useCDN(); });
+
+    /* error on any source element bubbles up — catch it */
+    vid.querySelectorAll('source').forEach(function(s){
+      s.addEventListener('error', function(){
+        /* only swap after all local sources fail */
+        var allLocal = Array.from(vid.querySelectorAll('source'))
+          .every(function(x){ return !x.src.startsWith('http'); });
+        if(allLocal){ clearTimeout(timeout); useCDN(); }
+      });
+    });
   }
 
   /* ── tasting bg: inject override style if local file loads ─── */
