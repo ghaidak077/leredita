@@ -1,0 +1,2133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>L'Eredità — Tuscan Soul in Berlin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Outfit:wght@200;300;400&display=swap"/>
+  <style>
+    /* ================================================================
+       RESET & ROOT
+    ================================================================ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ink:        #0d0a07;
+      --espresso:   #130f0a;
+      --parchment:  #f4efe5;
+      --cream:      #faf6ee;
+      --terracotta: #b85535;
+      --clay:       #c96a47;
+      --clay-lt:    #d98b6f;
+      --sage:       #364840;
+      --sage-lt:    #4e6658;
+      --gold:       #a98030;
+      --gold-lt:    #c9a050;
+      --warm:       #7a6e62;
+      --ease:       cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-in:    cubic-bezier(0.7, 0, 0.84, 0);
+    }
+
+    html { scroll-behavior: auto; }
+
+    body {
+      background: var(--espresso);
+      color: var(--parchment);
+      font-family: 'Outfit', sans-serif;
+      font-weight: 300;
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    ::selection { background: var(--terracotta); color: var(--cream); }
+    a { text-decoration: none; color: inherit; }
+    img { display: block; max-width: 100%; }
+
+    /* ================================================================
+       GRAIN
+    ================================================================ */
+    #grain {
+      position: fixed; inset: 0; z-index: 9000; pointer-events: none;
+      opacity: 0.028; mix-blend-mode: overlay;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size: 180px 180px;
+    }
+
+    /* ================================================================
+       SCROLL PROGRESS BAR
+    ================================================================ */
+    #progress-bar {
+      position: fixed; top: 0; left: 0; height: 2px; width: 0%;
+      background: linear-gradient(to right, var(--gold), var(--clay));
+      z-index: 10001; transition: width 0.1s linear;
+    }
+
+    /* ================================================================
+       CUSTOM CURSOR
+    ================================================================ */
+    #cur-dot {
+      position: fixed; width: 6px; height: 6px;
+      background: var(--clay); border-radius: 50%;
+      pointer-events: none; z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: transform 0.08s, background 0.3s;
+    }
+    #cur-ring {
+      position: fixed; width: 44px; height: 44px;
+      border: 1px solid rgba(201,106,71,0.4); border-radius: 50%;
+      pointer-events: none; z-index: 9998;
+      transform: translate(-50%, -50%);
+      transition: width 0.5s var(--ease), height 0.5s var(--ease),
+                  border-color 0.4s, background 0.4s, border-radius 0.4s;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden;
+    }
+    #cur-label {
+      font-size: 0.5rem; letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--cream); opacity: 0;
+      transition: opacity 0.3s; white-space: nowrap; font-family: 'Outfit', sans-serif;
+      font-weight: 300;
+    }
+    body.cur-hover #cur-ring {
+      width: 76px; height: 76px;
+      border-color: var(--clay); background: rgba(185,85,53,0.12);
+    }
+    body.cur-text #cur-ring {
+      width: 88px; height: 88px;
+      border-color: var(--gold); background: rgba(169,128,48,0.15);
+      border-radius: 50%;
+    }
+    body.cur-text #cur-label { opacity: 1; }
+    body.cur-image #cur-ring {
+      width: 96px; height: 96px;
+      background: rgba(13,10,7,0.7); border-color: transparent;
+      backdrop-filter: blur(4px);
+    }
+    body.cur-image #cur-label { opacity: 1; }
+
+    /* ================================================================
+       LOADER
+    ================================================================ */
+    #loader {
+      position: fixed; inset: 0; z-index: 20000;
+      background: var(--espresso);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 2.5rem;
+    }
+    .loader-crest {
+      display: flex; flex-direction: column; align-items: center; gap: 0.8rem;
+      opacity: 0; animation: ldFade 0.7s 0.1s forwards;
+    }
+    .loader-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 3.5rem; font-style: italic; font-weight: 300;
+      color: var(--cream); letter-spacing: 0.02em;
+    }
+    .loader-sub {
+      font-size: 0.58rem; letter-spacing: 0.4em; text-transform: uppercase;
+      color: var(--gold); font-family: 'Outfit', sans-serif;
+    }
+    .loader-rule {
+      width: 240px; height: 1px; background: rgba(245,240,232,0.07); overflow: hidden;
+    }
+    .loader-fill {
+      height: 100%; width: 0; background: linear-gradient(to right, var(--gold), var(--clay));
+      animation: ldFill 2s var(--ease) 0.4s forwards;
+    }
+    .loader-pct {
+      font-size: 0.65rem; letter-spacing: 0.2em; color: rgba(245,240,232,0.25);
+      font-family: 'Cormorant Garamond', serif; font-style: italic;
+    }
+    @keyframes ldFade { to { opacity: 1; } }
+    @keyframes ldFill { to { width: 100%; } }
+
+    /* ================================================================
+       NAVIGATION
+    ================================================================ */
+    #nav {
+      position: fixed; top: 0; left: 0; width: 100%;
+      padding: 2.2rem 5vw; z-index: 1000;
+      display: flex; align-items: center; justify-content: space-between;
+      transition: background 0.7s var(--ease), padding 0.5s var(--ease), border-bottom 0.7s;
+    }
+    #nav.scrolled {
+      background: rgba(13,10,7,0.92);
+      backdrop-filter: blur(24px) saturate(1.2);
+      padding: 1.3rem 5vw;
+      border-bottom: 1px solid rgba(169,128,48,0.12);
+    }
+    .nav-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.6rem; font-style: italic; font-weight: 300;
+      color: var(--cream); letter-spacing: 0.02em;
+      text-shadow: 0 1px 12px rgba(13,10,7,0.6);
+    }
+    .nav-logo sup {
+      font-style: normal; font-size: 0.55rem; letter-spacing: 0.2em;
+      text-transform: uppercase; color: var(--gold); vertical-align: middle;
+      margin-left: 0.4rem;
+    }
+    .nav-links {
+      display: flex; gap: 3.5rem; list-style: none;
+      font-size: 0.68rem; letter-spacing: 0.22em; text-transform: uppercase;
+    }
+    .nav-links a {
+      color: rgba(244,239,229,0.88); transition: color 0.3s; position: relative;
+      text-shadow: 0 1px 8px rgba(13,10,7,0.7);
+    }
+    .nav-links a::after {
+      content: ''; position: absolute; bottom: -3px; left: 0;
+      width: 0; height: 1px; background: var(--gold-lt);
+      transition: width 0.45s var(--ease);
+    }
+    .nav-links a:hover { color: var(--cream); }
+    .nav-links a:hover::after { width: 100%; }
+
+    .nav-right { display: flex; align-items: center; gap: 2rem; }
+
+    .btn-mag {
+      position: relative; overflow: hidden;
+      font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase;
+      padding: 0.85rem 2rem; border: 1px solid rgba(169,128,48,0.45);
+      color: var(--gold-lt); background: transparent;
+      font-family: 'Outfit', sans-serif; cursor: none;
+      transition: border-color 0.4s, color 0.4s;
+    }
+    .btn-mag .btn-fill {
+      position: absolute; inset: 0; background: var(--gold);
+      transform: translateY(101%); transition: transform 0.5s var(--ease);
+    }
+    .btn-mag .btn-txt { position: relative; z-index: 1; }
+    .btn-mag:hover { color: var(--espresso); border-color: var(--gold); }
+    .btn-mag:hover .btn-fill { transform: translateY(0); }
+
+    /* Hamburger */
+    .nav-burger { display: none; flex-direction: column; gap: 5px; cursor: none; }
+    .nav-burger span { display: block; width: 24px; height: 1px; background: var(--cream); transition: 0.4s; }
+
+    /* Mobile menu overlay */
+    #mobile-menu {
+      position: fixed; inset: 0; z-index: 9500;
+      background: rgba(13,10,7,0.97);
+      backdrop-filter: blur(8px);
+      display: none; flex-direction: column;
+      align-items: flex-start; justify-content: center;
+      padding: 0 10vw; gap: 0;
+    }
+    #mobile-menu.open { display: flex; }
+    #mobile-menu a {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2.5rem, 9vw, 4rem);
+      font-style: italic; font-weight: 300;
+      color: rgba(244,239,229,0.7); transition: color 0.3s;
+      padding: 0.8rem 0;
+      border-bottom: 1px solid rgba(244,239,229,0.05);
+      width: 100%;
+      display: flex; align-items: center; gap: 1.5rem;
+    }
+    #mobile-menu a::before {
+      content: attr(data-num);
+      font-family: 'Outfit', sans-serif; font-style: normal;
+      font-size: 0.55rem; letter-spacing: 0.2em; color: var(--gold);
+    }
+    #mobile-menu a:hover { color: var(--cream); }
+    #mobile-menu a:last-child { color: var(--clay-lt); border: none; }
+    .mobile-menu-footer {
+      position: absolute; bottom: 4rem; left: 10vw;
+      font-size: 0.6rem; letter-spacing: 0.3em; text-transform: uppercase;
+      color: rgba(244,239,229,0.2);
+    }
+
+    /* ================================================================
+       FLOATING RESERVATION PILL
+    ================================================================ */
+    #res-pill {
+      position: fixed; bottom: 2.5rem; left: 50%; transform: translateX(-50%) translateY(100px);
+      z-index: 990; opacity: 0;
+      transition: transform 0.7s var(--ease), opacity 0.7s;
+      display: flex; align-items: center; gap: 0;
+      background: var(--terracotta); overflow: hidden;
+    }
+    #res-pill.visible { transform: translateX(-50%) translateY(0); opacity: 1; }
+    .pill-text {
+      font-size: 0.63rem; letter-spacing: 0.22em; text-transform: uppercase;
+      padding: 1rem 2.2rem; color: white;
+      font-family: 'Outfit', sans-serif; cursor: none;
+    }
+    .pill-sep { width: 1px; height: 100%; background: rgba(255,255,255,0.2); }
+    .pill-time {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 0.9rem; font-style: italic;
+      padding: 1rem 2rem; color: rgba(255,255,255,0.8); cursor: none;
+    }
+
+    /* ================================================================
+       HERO
+    ================================================================ */
+    #hero {
+      position: relative; width: 100%; height: 100svh;
+      min-height: 600px; overflow: hidden;
+    }
+    #hero-media {
+      position: absolute; inset: 0; z-index: 0;
+      background: url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&q=90&w=1600') center/cover no-repeat;
+      overflow: hidden;
+    }
+    /* Tasting courses — horizontal scroll on mobile */
+    .tasting-courses-wrap {
+      overflow-x: auto; -ms-overflow-style: none; scrollbar-width: none;
+    }
+    .tasting-courses-wrap::-webkit-scrollbar { display: none; }
+
+    /* ── HERO STRUCTURE ───────────────────────────────────────────── */
+    #hero {
+      position: relative; width: 100%; height: 100svh;
+      min-height: 600px; overflow: hidden;
+    }
+    #hero-media {
+      position: absolute; inset: 0; z-index: 0;
+      background: url('https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&q=90&w=1920') center/cover no-repeat;
+    }
+    /* ── TOP vignette — nav always readable ────────────────────── */
+    #hero-media::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0;
+      height: 340px; z-index: 2; pointer-events: none;
+      background: linear-gradient(to bottom,
+        rgba(13,10,7,0.88) 0%,
+        rgba(13,10,7,0.4)  50%,
+        transparent 100%);
+    }
+    /* ── BOTTOM vignette — text always readable ─────────────────── */
+    #hero-media::after {
+      content: ''; position: absolute; inset: 0; z-index: 1;
+      background: linear-gradient(to bottom,
+        transparent 20%,
+        rgba(13,10,7,0.25) 52%,
+        rgba(13,10,7,0.85) 76%,
+        rgba(13,10,7,0.99) 100%);
+    }
+    #hero-video {
+      width: 100%; height: 100%; object-fit: cover;
+      transform: scale(1.06); filter: saturate(0.75) contrast(1.05);
+      will-change: transform;
+    }
+
+    /* ── LEFT BLOCK: eyebrow + big title ─────────────────────────── */
+    .hero-left {
+      position: absolute;
+      bottom: 8vh; left: 6vw;
+      z-index: 3;
+      max-width: 60%;
+    }
+    .hero-eyebrow {
+      font-size: 0.6rem; letter-spacing: 0.38em; text-transform: uppercase;
+      color: var(--gold-lt); margin-bottom: 1.6rem;
+      display: flex; align-items: center; gap: 1rem;
+      opacity: 0; transform: translateY(12px);
+      text-shadow: 0 1px 12px rgba(13,10,7,0.95);
+    }
+    .hero-eyebrow::before {
+      content: ''; width: 30px; height: 1px;
+      background: var(--gold-lt); flex-shrink: 0;
+    }
+    .hero-h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(4.5rem, 10.5vw, 13rem);
+      font-weight: 300; line-height: 0.84;
+      color: var(--cream);
+      text-shadow: 0 6px 50px rgba(13,10,7,0.6);
+    }
+    .hero-h1 em { font-style: italic; color: var(--clay-lt); }
+    .hero-line { display: block; overflow: hidden; }
+    .hero-line-inner { display: block; transform: translateY(110%); will-change: transform; }
+
+    /* ── RIGHT BLOCK: description + scroll ───────────────────────── */
+    .hero-right {
+      position: absolute;
+      bottom: 8vh; right: 6vw;
+      z-index: 3;
+      display: flex; flex-direction: column;
+      align-items: flex-end; gap: 2.5rem;
+      width: clamp(160px, 17vw, 230px);
+    }
+    .hero-desc {
+      text-align: right;
+      font-size: 0.82rem; line-height: 1.95;
+      color: rgba(244,239,229,0.75);
+      opacity: 0; transform: translateY(18px);
+      text-shadow: 0 1px 12px rgba(13,10,7,0.9);
+    }
+    .hero-scroll {
+      display: flex; flex-direction: column;
+      align-items: center; gap: 0.8rem;
+      font-size: 0.53rem; letter-spacing: 0.32em; text-transform: uppercase;
+      color: rgba(244,239,229,0.5); opacity: 0;
+    }
+    .scroll-tick {
+      width: 1px; height: 54px;
+      background: linear-gradient(to bottom, rgba(201,160,80,0.85), transparent);
+      animation: tick 2.2s ease-in-out infinite;
+    }
+    @keyframes tick {
+      0%,100% { transform: scaleY(1); opacity: 1; }
+      50%      { transform: scaleY(0.3); opacity: 0.3; }
+    }
+
+    /* ── ADDRESS: vertical text, right edge, mid-height ─────────── */
+    .hero-address {
+      position: absolute;
+      top: 50%; right: 2.5vw;
+      transform: translateY(-50%);
+      z-index: 3;
+      writing-mode: vertical-rl; text-orientation: mixed;
+      font-size: 0.52rem; letter-spacing: 0.3em; text-transform: uppercase;
+      color: rgba(244,239,229,0.22); line-height: 1;
+      opacity: 0; text-shadow: 0 1px 8px rgba(13,10,7,0.9);
+    }
+
+    /* ================================================================
+       MANIFESTO
+    ================================================================ */
+    #manifesto {
+      background: var(--cream); color: var(--espresso);
+      padding: 22vh 10vw 20vh;
+      position: relative; overflow: hidden;
+    }
+    .manifesto-bg-word {
+      position: absolute; top: -4rem; right: -3vw;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 24vw; font-weight: 300; font-style: italic;
+      color: rgba(13,10,7,0.035); line-height: 1;
+      pointer-events: none; user-select: none; white-space: nowrap;
+    }
+    .manifesto-inner { max-width: 960px; margin: 0 auto; position: relative; }
+    .manifesto-label {
+      font-size: 0.6rem; letter-spacing: 0.38em; text-transform: uppercase;
+      color: var(--terracotta); margin-bottom: 5rem;
+      display: flex; align-items: center; gap: 1.2rem;
+      opacity: 0; transform: translateY(20px); transition: opacity 0.8s, transform 0.8s;
+    }
+    .manifesto-label.vis { opacity: 1; transform: translateY(0); }
+    .manifesto-label::after { content: ''; flex: 0 0 48px; height: 1px; background: rgba(184,85,53,0.35); }
+    .manifesto-body {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2.2rem, 4.5vw, 5rem);
+      font-weight: 300; line-height: 1.15;
+    }
+    .manifesto-body .mw { display: inline-block; overflow: hidden; vertical-align: bottom; }
+    .manifesto-body .mw-i { display: inline-block; transform: translateY(105%); }
+    .manifesto-body em { font-style: italic; color: var(--terracotta); }
+    .manifesto-attr {
+      margin-top: 5rem; display: flex; justify-content: space-between; align-items: center;
+      opacity: 0; transform: translateY(20px); transition: opacity 0.8s 0.4s, transform 0.8s 0.4s;
+    }
+    .manifesto-attr.vis { opacity: 1; transform: translateY(0); }
+    .manifesto-sig {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.6rem; font-style: italic; color: var(--warm);
+    }
+    .manifesto-yr { font-size: 0.62rem; letter-spacing: 0.28em; color: var(--warm); text-transform: uppercase; }
+
+    /* ================================================================
+       ORIGINS
+    ================================================================ */
+    #origins {
+      background: var(--espresso); padding: 20vh 0; overflow: hidden;
+    }
+    .origins-grid { display: grid; grid-template-columns: 1fr 1fr; min-height: 85vh; }
+    .origins-media { position: relative; overflow: hidden; }
+    .origins-photo {
+      width: 100%; height: 100%; object-fit: cover;
+      transform: scale(1.12); filter: sepia(8%) saturate(0.88);
+      will-change: transform;
+    }
+    .origins-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to right, transparent 50%, var(--espresso));
+    }
+    .badge-yr {
+      position: absolute; top: 3.5rem; left: 3.5rem;
+      width: 88px; height: 88px; border: 1px solid rgba(169,128,48,0.28);
+      border-radius: 50%; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      font-family: 'Cormorant Garamond', serif; color: var(--gold-lt);
+      font-size: 0.8rem; line-height: 1.3; text-align: center;
+    }
+    .badge-yr strong { font-size: 1.7rem; font-weight: 300; display: block; }
+    .origins-copy { padding: 5rem 8vw 5rem 5vw; display: flex; flex-direction: column; justify-content: center; }
+    .sec-label {
+      font-size: 0.6rem; letter-spacing: 0.35em; text-transform: uppercase;
+      color: var(--gold); margin-bottom: 3rem;
+      display: flex; align-items: center; gap: 1rem; opacity: 0; transform: translateX(-20px);
+      transition: opacity 0.7s, transform 0.7s;
+    }
+    .sec-label::before { content: ''; width: 24px; height: 1px; background: var(--gold); }
+    .sec-label.vis { opacity: 1; transform: translateX(0); }
+    .origins-copy h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2.5rem, 4vw, 4.5rem); font-weight: 300; line-height: 1.05;
+      margin-bottom: 2.5rem;
+    }
+    .origins-copy h2 em { font-style: italic; color: var(--clay-lt); }
+    .origins-copy p {
+      font-size: 0.87rem; line-height: 1.95;
+      color: rgba(244,239,229,0.55); max-width: 470px;
+    }
+    .origins-copy p + p { margin-top: 1.5rem; }
+    .divider { width: 36px; height: 1px; background: rgba(169,128,48,0.35); margin: 3rem 0; }
+    .origins-pullquote {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.35rem; font-style: italic; color: var(--clay-lt); line-height: 1.55;
+    }
+    .origins-pullquote small { font-size: 0.72rem; color: rgba(244,239,229,0.3); font-style: normal; display: block; margin-top: 0.5rem; letter-spacing: 0.08em; }
+
+    /* ================================================================
+       NUMBERS — COUNTING
+    ================================================================ */
+    #numbers {
+      background: var(--sage);
+      padding: 0; display: grid; grid-template-columns: repeat(4, 1fr);
+    }
+    .num-item {
+      padding: 6rem 3rem; text-align: center;
+      border-right: 1px solid rgba(244,239,229,0.07);
+      position: relative; overflow: hidden;
+    }
+    .num-item:last-child { border-right: none; }
+    .num-item::before {
+      content: ''; position: absolute; inset: 0;
+      background: rgba(244,239,229,0.03);
+      transform: translateY(100%);
+      transition: transform 0.6s var(--ease);
+    }
+    .num-item:hover::before { transform: translateY(0); }
+    .num-val {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 5.5rem; font-weight: 300; line-height: 1; color: var(--cream);
+    }
+    .num-val sup { font-size: 2rem; vertical-align: super; }
+    .num-label {
+      margin-top: 1rem; font-size: 0.6rem; letter-spacing: 0.28em;
+      text-transform: uppercase; color: rgba(244,239,229,0.38);
+    }
+
+    /* ================================================================
+       TASTING MENU — CINEMATIC SECTION
+    ================================================================ */
+    #tasting {
+      background: var(--ink); position: relative; overflow: hidden;
+      padding: 22vh 10vw;
+    }
+    #tasting::before {
+      content: ''; position: absolute; inset: 0;
+      background: url('https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&q=80&w=1600') center/cover no-repeat;
+      opacity: 0.12; filter: sepia(30%);
+    }
+    .tasting-inner { position: relative; z-index: 1; max-width: 1000px; margin: 0 auto; text-align: center; }
+    .tasting-eyebrow {
+      font-size: 0.6rem; letter-spacing: 0.4em; text-transform: uppercase;
+      color: var(--gold-lt); margin-bottom: 2rem;
+      display: flex; align-items: center; justify-content: center; gap: 1.5rem;
+    }
+    .tasting-eyebrow::before, .tasting-eyebrow::after {
+      content: ''; flex: 0 0 48px; height: 1px; background: rgba(201,160,80,0.4);
+    }
+    .tasting-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(3rem, 8vw, 9rem); font-weight: 300; font-style: italic;
+      line-height: 0.88; margin-bottom: 4rem;
+    }
+    .tasting-price {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.3rem; color: var(--clay-lt);
+      letter-spacing: 0.08em; margin-bottom: 5rem;
+    }
+    .tasting-courses {
+      display: grid; grid-template-columns: repeat(7, 1fr);
+      gap: 0; margin-bottom: 6rem;
+    }
+    .course {
+      padding: 2.5rem 1.5rem;
+      border-right: 1px solid rgba(244,239,229,0.06);
+      text-align: center;
+    }
+    .course:last-child { border-right: none; }
+    .course-num {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2.5rem; font-weight: 300; color: rgba(244,239,229,0.12);
+      margin-bottom: 1rem; line-height: 1;
+    }
+    .course-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 0.95rem; font-style: italic; color: var(--cream); line-height: 1.4;
+    }
+    .course-desc { font-size: 0.62rem; color: rgba(244,239,229,0.3); margin-top: 0.5rem; letter-spacing: 0.05em; }
+
+    .btn-tasting {
+      display: inline-block; position: relative; overflow: hidden;
+      font-size: 0.68rem; letter-spacing: 0.22em; text-transform: uppercase;
+      padding: 1.5rem 5rem; background: transparent; cursor: none;
+      font-family: 'Outfit', sans-serif; color: var(--cream);
+      border: 1px solid rgba(244,239,229,0.2);
+      transition: color 0.5s, border-color 0.5s;
+    }
+    .btn-tasting .t-fill {
+      position: absolute; inset: 0; background: var(--terracotta);
+      transform: scaleX(0); transform-origin: left; transition: transform 0.6s var(--ease);
+    }
+    .btn-tasting .t-txt { position: relative; z-index: 1; }
+    .btn-tasting:hover { color: white; border-color: var(--terracotta); }
+    .btn-tasting:hover .t-fill { transform: scaleX(1); }
+
+    /* ================================================================
+       KITCHEN HORIZONTAL SCROLL
+    ================================================================ */
+    #kitchen { background: var(--cream); color: var(--espresso); padding: 18vh 0; overflow: hidden; }
+    .kitchen-hdr {
+      padding: 0 8vw 8vh;
+      display: flex; justify-content: space-between; align-items: flex-end;
+    }
+    .kitchen-hdr h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2.8rem, 6vw, 7rem); font-weight: 300; line-height: 0.88;
+    }
+    .kitchen-hdr h2 em { font-style: italic; }
+    .kitchen-hint {
+      display: flex; align-items: center; gap: 1rem; padding-bottom: 0.5rem;
+      font-size: 0.63rem; letter-spacing: 0.22em; text-transform: uppercase;
+      color: var(--warm); animation: arrowPulse 1.8s ease-in-out infinite;
+    }
+    @keyframes arrowPulse { 0%,100% { transform: translateX(0); } 50% { transform: translateX(8px); } }
+    .kitchen-hint::after { content: '→'; font-size: 1rem; }
+    .kitchen-track {
+      display: flex; gap: 2.5vw; padding: 0 8vw 3vh;
+      overflow-x: auto; scroll-snap-type: x mandatory;
+      -ms-overflow-style: none; scrollbar-width: none; cursor: grab;
+    }
+    .kitchen-track::-webkit-scrollbar { display: none; }
+    .kitchen-track:active { cursor: grabbing; }
+    .k-card {
+      flex: 0 0 400px; scroll-snap-align: start;
+      position: relative; overflow: hidden;
+    }
+    .k-card-img {
+      width: 100%; aspect-ratio: 3/4; object-fit: cover;
+      filter: saturate(0.8);
+      transition: transform 0.9s var(--ease), filter 0.9s;
+      display: block;
+    }
+    .k-card:hover .k-card-img { transform: scale(1.05); filter: saturate(1.1); }
+    .k-card-info {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      padding: 4rem 2rem 2rem;
+      background: linear-gradient(to top, rgba(13,10,7,0.9) 0%, transparent);
+      color: var(--cream);
+    }
+    .k-card-info h3 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2rem; font-weight: 400;
+    }
+    .k-card-info p { font-size: 0.72rem; color: rgba(244,239,229,0.55); margin-top: 0.3rem; letter-spacing: 0.05em; }
+
+    /* ================================================================
+       MENU — WITH FLOATING IMAGE PREVIEW
+    ================================================================ */
+    #menu { background: var(--espresso); padding: 18vh 8vw; position: relative; overflow: hidden; }
+    #menu::before {
+      content: ''; position: absolute;
+      top: -25%; left: -5%; width: 55%; padding-bottom: 55%;
+      background: radial-gradient(circle, rgba(54,72,64,0.2) 0%, transparent 65%);
+      pointer-events: none;
+    }
+
+    /* Floating dish preview */
+    #dish-preview {
+      position: fixed; z-index: 500; pointer-events: none;
+      width: 220px; height: 280px; overflow: hidden;
+      opacity: 0; transform: scale(0.85) rotate(-3deg);
+      transition: opacity 0.4s var(--ease), transform 0.4s var(--ease);
+      border: 1px solid rgba(244,239,229,0.08);
+    }
+    #dish-preview.active { opacity: 1; transform: scale(1) rotate(0deg); }
+    #dish-preview img { width: 100%; height: 100%; object-fit: cover; filter: saturate(0.8); }
+
+    .menu-hdr {
+      display: grid; grid-template-columns: 1fr auto;
+      align-items: flex-end; margin-bottom: 8vh;
+    }
+    .menu-hdr h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(3.5rem, 7vw, 8rem); font-weight: 300; font-style: italic; line-height: 0.85;
+    }
+    .menu-hdr p {
+      max-width: 240px; font-size: 0.82rem; line-height: 1.85;
+      color: rgba(244,239,229,0.4); text-align: right; padding-bottom: 0.8rem;
+    }
+
+    .menu-tabs {
+      display: flex; gap: 0; margin-bottom: 5vh;
+      border-bottom: 1px solid rgba(244,239,229,0.06);
+    }
+    .m-tab {
+      font-size: 0.65rem; letter-spacing: 0.22em; text-transform: uppercase;
+      padding: 1.2rem 3rem; cursor: none; color: rgba(244,239,229,0.3);
+      transition: color 0.3s; position: relative;
+      background: none; border: none; font-family: 'Outfit', sans-serif;
+    }
+    .m-tab::after {
+      content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 1px;
+      background: var(--gold); transform: scaleX(0); transition: transform 0.45s var(--ease);
+    }
+    .m-tab.active { color: var(--cream); }
+    .m-tab.active::after { transform: scaleX(1); }
+
+    .menu-panel { display: none; }
+    .menu-panel.active { display: block; }
+
+    .menu-items { display: flex; flex-direction: column; }
+    .menu-item {
+      display: grid; grid-template-columns: 1fr auto;
+      align-items: baseline; padding: 2.8rem 0;
+      border-bottom: 1px solid rgba(244,239,229,0.05);
+      gap: 2rem; position: relative; cursor: none;
+      transition: padding-left 0.4s var(--ease);
+    }
+    .menu-item::before {
+      content: ''; position: absolute; left: -8vw; right: -8vw; top: 0; bottom: 0;
+      background: linear-gradient(to right, rgba(184,85,53,0.04), transparent);
+      opacity: 0; transition: opacity 0.5s;
+    }
+    .menu-item:hover::before { opacity: 1; }
+    .menu-item:hover { padding-left: 1.5rem; }
+    .menu-item-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2.2rem; font-weight: 400;
+      display: flex; align-items: baseline; gap: 1.5rem;
+    }
+    .menu-item-badge {
+      font-family: 'Outfit', sans-serif; font-weight: 300;
+      font-size: 0.62rem; color: var(--gold); letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+    .menu-item-desc {
+      font-size: 0.78rem; line-height: 1.75;
+      color: rgba(244,239,229,0.35); margin-top: 0.5rem; max-width: 520px;
+    }
+    .menu-price {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.8rem; font-weight: 300; color: var(--clay-lt); white-space: nowrap;
+    }
+    .menu-price small { font-size: 0.85rem; }
+
+    /* ================================================================
+       PRESS / AWARDS
+    ================================================================ */
+    #press {
+      background: var(--parchment); color: var(--espresso);
+      padding: 14vh 8vw; overflow: hidden;
+    }
+    .press-top {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 8vh;
+    }
+    .press-top h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2rem, 4vw, 4rem); font-weight: 300;
+    }
+    .press-top h2 em { font-style: italic; color: var(--terracotta); }
+    .press-year-tag {
+      font-size: 0.6rem; letter-spacing: 0.3em; text-transform: uppercase;
+      color: var(--warm); border: 1px solid rgba(122,110,98,0.3);
+      padding: 0.5rem 1.2rem;
+    }
+
+    .press-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; }
+    .press-card {
+      background: rgba(13,10,7,0.04); padding: 4rem 3rem;
+      position: relative; overflow: hidden;
+      transition: background 0.5s;
+    }
+    .press-card:hover { background: rgba(13,10,7,0.07); }
+    .press-card-outlet {
+      font-size: 0.6rem; letter-spacing: 0.3em; text-transform: uppercase;
+      color: var(--warm); margin-bottom: 2rem;
+    }
+    .press-card-quote {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.55rem; font-style: italic; font-weight: 300;
+      line-height: 1.4; color: var(--espresso); margin-bottom: 2.5rem;
+    }
+    .press-card-stars {
+      color: var(--gold); font-size: 0.9rem; letter-spacing: 0.15em;
+    }
+    .press-award-row {
+      margin-top: 8vh; padding-top: 6vh;
+      border-top: 1px solid rgba(13,10,7,0.1);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .award-badge {
+      display: flex; flex-direction: column; align-items: center; gap: 0.8rem;
+      text-align: center;
+    }
+    .award-icon {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2.5rem; color: var(--terracotta);
+    }
+    .award-label {
+      font-size: 0.6rem; letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--warm); line-height: 1.6;
+    }
+    .award-divider { width: 1px; height: 60px; background: rgba(13,10,7,0.1); }
+
+    /* ================================================================
+       WINE
+    ================================================================ */
+    #wine { background: var(--sage); padding: 18vh 0; overflow: hidden; }
+    .wine-grid { display: grid; grid-template-columns: 1fr 1.4fr; }
+    .wine-copy { padding: 5rem 7rem 5rem 8vw; display: flex; flex-direction: column; justify-content: center; }
+    .wine-copy h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2.5rem, 4vw, 5.5rem); font-weight: 300; line-height: 0.95;
+      margin-bottom: 2.5rem;
+    }
+    .wine-copy h2 em { font-style: italic; color: var(--clay-lt); }
+    .wine-copy p { font-size: 0.87rem; line-height: 1.9; color: rgba(244,239,229,0.6); max-width: 380px; }
+    .wine-list { margin-top: 4rem; }
+    .wine-row {
+      padding: 1.8rem 0; border-top: 1px solid rgba(244,239,229,0.08);
+      display: flex; justify-content: space-between; align-items: baseline; gap: 2rem;
+      transition: padding-left 0.4s var(--ease);
+      cursor: none;
+    }
+    .wine-row:last-child { border-bottom: 1px solid rgba(244,239,229,0.08); }
+    .wine-row:hover { padding-left: 1rem; }
+    .wine-name { font-family: 'Cormorant Garamond', serif; font-size: 1.35rem; }
+    .wine-region { font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(244,239,229,0.3); margin-top: 0.2rem; }
+    .wine-price { font-family: 'Cormorant Garamond', serif; font-size: 1.25rem; color: var(--clay-lt); }
+    .wine-photo { position: relative; overflow: hidden; }
+    .wine-photo img {
+      width: 100%; height: 100%; object-fit: cover; filter: saturate(0.65) sepia(12%);
+    }
+    .wine-photo::before {
+      content: ''; position: absolute; inset: 0; z-index: 1;
+      background: linear-gradient(to right, var(--sage) 0%, transparent 25%);
+    }
+
+    /* ================================================================
+       GALLERY MARQUEE
+    ================================================================ */
+    #gallery { background: var(--espresso); padding: 10vh 0; overflow: hidden; }
+    .gallery-lbl {
+      padding: 0 8vw 4vh;
+      font-size: 0.6rem; letter-spacing: 0.35em; text-transform: uppercase;
+      color: var(--gold); display: flex; align-items: center; gap: 1rem;
+    }
+    .gallery-lbl::before { content: ''; width: 24px; height: 1px; background: var(--gold); }
+    .mrow {
+      display: flex; gap: 1.5vw; margin-bottom: 1.5vw;
+      animation: mLeft 42s linear infinite; width: max-content;
+    }
+    .mrow.rev { animation: mRight 48s linear infinite; }
+    @keyframes mLeft { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+    @keyframes mRight { from { transform: translateX(-50%); } to { transform: translateX(0); } }
+    .mrow:hover { animation-play-state: paused; }
+    .mi {
+      flex: 0 0 320px;        /* fixed width, never shrinks */
+      width: 320px;
+      height: 240px;          /* same height for every single card */
+      overflow: hidden;
+      position: relative;
+      display: block;
+    }
+    .mi.tall {
+      flex: 0 0 320px;
+      width: 320px;
+      height: 240px;          /* override tall — same as rest */
+    }
+    .mi img {
+      width: 100%; height: 100%;
+      object-fit: cover;       /* crops to fill, never squishes */
+      object-position: center;
+      display: block;
+      filter: saturate(0.6) sepia(8%);
+      transition: filter 0.8s, transform 0.8s var(--ease);
+    }
+    .mi.tall img {
+      width: 100%; height: 100%; /* same — no override needed */
+    }
+    .mi:hover img { filter: saturate(1.1) sepia(0%); transform: scale(1.06); }
+
+    /* ================================================================
+       PULL QUOTE
+    ================================================================ */
+    #pullquote {
+      background: var(--terracotta);
+      padding: 14vh 10vw; text-align: center; position: relative; overflow: hidden;
+    }
+    #pullquote::before {
+      content: '"'; position: absolute; top: -5rem; left: 5vw;
+      font-family: 'Cormorant Garamond', serif; font-size: 35vw; font-weight: 300;
+      color: rgba(244,239,229,0.06); line-height: 1; pointer-events: none;
+    }
+    .pq-text {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2rem, 5vw, 5.5rem); font-weight: 300; font-style: italic;
+      line-height: 1.15; color: var(--cream); position: relative; z-index: 1;
+    }
+    .pq-attr {
+      margin-top: 3rem; font-size: 0.65rem; letter-spacing: 0.3em;
+      text-transform: uppercase; color: rgba(244,239,229,0.55);
+      position: relative; z-index: 1;
+    }
+
+    /* ================================================================
+       CHEF
+    ================================================================ */
+    #chef {
+      background: var(--cream); color: var(--espresso);
+      padding: 18vh 8vw;
+      display: grid; grid-template-columns: 1.1fr 1fr; gap: 8vw; align-items: center;
+    }
+    .chef-media { position: relative; }
+    .chef-frame {
+      position: absolute; top: -2.5rem; right: -2.5rem;
+      bottom: 2.5rem; left: 2.5rem;
+      border: 1px solid rgba(184,85,53,0.18); pointer-events: none; z-index: 0;
+    }
+    .chef-photo {
+      width: 100%; aspect-ratio: 4/5; object-fit: cover;
+      position: relative; z-index: 1; filter: sepia(5%) saturate(0.88);
+    }
+    .chef-rosette {
+      position: absolute; z-index: 2; bottom: -1.5rem; right: -1.5rem;
+      width: 100px; height: 100px; background: var(--terracotta);
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      animation: spin 25s linear infinite;
+    }
+    .chef-rosette svg { width: 100%; height: 100%; }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+    .chef-copy h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2.2rem, 3.5vw, 4.5rem); font-weight: 300; line-height: 1.05;
+      margin-bottom: 2rem;
+    }
+    .chef-copy h2 em { font-style: italic; color: var(--terracotta); }
+    .chef-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2.8rem; font-style: italic; color: var(--terracotta);
+      margin-bottom: 0.4rem;
+    }
+    .chef-title {
+      font-size: 0.67rem; letter-spacing: 0.22em; text-transform: uppercase;
+      color: var(--warm); margin-bottom: 2.5rem;
+    }
+    .chef-bio { font-size: 0.87rem; line-height: 1.95; color: var(--warm); max-width: 440px; }
+    .chef-bio + .chef-bio { margin-top: 1.5rem; }
+
+    /* ================================================================
+       RESERVATIONS
+    ================================================================ */
+    #reservations {
+      background: var(--espresso); padding: 20vh 8vw;
+      text-align: center; position: relative; overflow: hidden;
+    }
+    #reservations::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(ellipse 70% 70% at 50% 60%, rgba(184,85,53,0.07) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .res-bg-word {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -48%);
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 28vw; font-weight: 300; font-style: italic;
+      color: rgba(244,239,229,0.015); white-space: nowrap;
+      pointer-events: none; user-select: none; line-height: 1;
+    }
+    .res-inner { position: relative; z-index: 1; max-width: 700px; margin: 0 auto; }
+    .res-inner h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(3rem, 7vw, 8rem); font-weight: 300; line-height: 0.85;
+      margin-bottom: 3rem;
+    }
+    .res-inner h2 em { font-style: italic; color: var(--clay-lt); }
+    .res-inner p {
+      font-size: 0.87rem; line-height: 1.9;
+      color: rgba(244,239,229,0.45); margin-bottom: 5rem;
+    }
+    .res-times {
+      display: flex; justify-content: center; gap: 0; margin-bottom: 5rem;
+    }
+    .rt {
+      padding: 2rem 3.5rem; border: 1px solid rgba(244,239,229,0.07);
+      text-align: center; transition: background 0.4s, border-color 0.4s;
+    }
+    .rt:hover { background: rgba(244,239,229,0.03); border-color: rgba(244,239,229,0.12); }
+    .rt-lbl { font-size: 0.6rem; letter-spacing: 0.25em; text-transform: uppercase; color: rgba(244,239,229,0.3); margin-bottom: 0.6rem; }
+    .rt-val { font-family: 'Cormorant Garamond', serif; font-size: 1.45rem; color: var(--cream); }
+    .btn-row { display: flex; justify-content: center; gap: 1.5rem; flex-wrap: wrap; }
+    .btn-prim {
+      display: inline-block; position: relative; overflow: hidden;
+      font-size: 0.67rem; letter-spacing: 0.22em; text-transform: uppercase;
+      padding: 1.5rem 4.5rem; cursor: none; font-family: 'Outfit', sans-serif;
+      background: var(--terracotta); color: white; border: 1px solid var(--terracotta);
+      transition: color 0.5s, border-color 0.5s;
+    }
+    .btn-prim .pf { position: absolute; inset: 0; background: rgba(255,255,255,0.15); transform: translateX(-105%) skewX(-10deg); transition: transform 0.6s var(--ease); }
+    .btn-prim .pt { position: relative; z-index: 1; }
+    .btn-prim:hover .pf { transform: translateX(110%) skewX(-10deg); }
+
+    .btn-out {
+      display: inline-block; font-size: 0.67rem; letter-spacing: 0.22em; text-transform: uppercase;
+      padding: 1.5rem 4.5rem; cursor: none; font-family: 'Outfit', sans-serif;
+      background: transparent; color: rgba(244,239,229,0.5);
+      border: 1px solid rgba(244,239,229,0.18);
+      transition: border-color 0.4s, color 0.4s;
+    }
+    .btn-out:hover { border-color: rgba(244,239,229,0.5); color: var(--cream); }
+
+    /* ================================================================
+       INFO
+    ================================================================ */
+    #info {
+      background: var(--parchment); color: var(--espresso);
+      padding: 10vh 8vw;
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 4rem; border-top: 1px solid rgba(13,10,7,0.07);
+    }
+    .info-blk h3 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.7rem; margin-bottom: 1.5rem; font-weight: 400;
+    }
+    .info-blk p, .info-blk address {
+      font-size: 0.82rem; line-height: 2.1; color: var(--warm); font-style: normal;
+    }
+    .info-blk a { color: var(--terracotta); transition: opacity 0.3s; }
+    .info-blk a:hover { opacity: 0.7; }
+
+    /* ================================================================
+       FOOTER
+    ================================================================ */
+    footer {
+      background: var(--espresso); padding: 8vh 8vw 4vh;
+      border-top: 1px solid rgba(244,239,229,0.05);
+    }
+    .ft-top {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      padding-bottom: 6vh; margin-bottom: 4vh;
+      border-bottom: 1px solid rgba(244,239,229,0.05);
+    }
+    .ft-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2.8rem; font-style: italic; font-weight: 300; color: var(--cream);
+    }
+    .ft-logo span {
+      display: block; font-size: 0.58rem; letter-spacing: 0.35em;
+      text-transform: uppercase; font-style: normal; color: var(--warm); margin-top: 0.6rem;
+    }
+    .ft-cols { display: flex; gap: 6rem; }
+    .ft-col h4 {
+      font-size: 0.58rem; letter-spacing: 0.28em; text-transform: uppercase;
+      color: var(--gold); margin-bottom: 1.5rem;
+    }
+    .ft-col ul { list-style: none; }
+    .ft-col li { margin-bottom: 0.85rem; }
+    .ft-col a { font-size: 0.82rem; color: rgba(244,239,229,0.35); transition: color 0.3s; }
+    .ft-col a:hover { color: var(--cream); }
+    .ft-social { display: flex; flex-direction: column; align-items: flex-end; gap: 1rem; }
+    .ft-social-lbl { font-size: 0.58rem; letter-spacing: 0.28em; text-transform: uppercase; color: rgba(244,239,229,0.25); }
+    .ft-links { display: flex; gap: 1.8rem; }
+    .ft-links a { font-size: 0.72rem; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(244,239,229,0.35); transition: color 0.3s; }
+    .ft-links a:hover { color: var(--clay-lt); }
+    .ft-bottom { display: flex; justify-content: space-between; align-items: center; }
+    .ft-copy { font-size: 0.7rem; color: rgba(244,239,229,0.18); }
+    .ft-legal { display: flex; gap: 2rem; }
+    .ft-legal a { font-size: 0.7rem; color: rgba(244,239,229,0.18); transition: color 0.3s; }
+    .ft-legal a:hover { color: rgba(244,239,229,0.45); }
+
+    /* ================================================================
+       SCROLL REVEAL
+    ================================================================ */
+    .sr { opacity: 0; transform: translateY(48px); transition: opacity 0.95s var(--ease), transform 0.95s var(--ease); }
+    .sr.vis { opacity: 1; transform: translateY(0); }
+    .sr.d1 { transition-delay: 0.1s; }
+    .sr.d2 { transition-delay: 0.22s; }
+    .sr.d3 { transition-delay: 0.38s; }
+    .sr-l { opacity: 0; transform: translateX(-40px); transition: opacity 0.9s var(--ease), transform 0.9s var(--ease); }
+    .sr-l.vis { opacity: 1; transform: translateX(0); }
+    .sr-r { opacity: 0; transform: translateX(40px); transition: opacity 0.9s var(--ease), transform 0.9s var(--ease); }
+    .sr-r.vis { opacity: 1; transform: translateX(0); }
+
+    /* ================================================================
+       RESPONSIVE
+    ================================================================ */
+    @media (max-width: 1024px) {
+      .origins-grid { grid-template-columns: 1fr; }
+      .origins-media { height: 55vh; }
+      .origins-overlay { background: linear-gradient(to bottom, transparent 55%, var(--espresso)); }
+      .wine-grid { grid-template-columns: 1fr; }
+      .wine-photo { height: 50vh; }
+      #chef { grid-template-columns: 1fr; gap: 5rem; padding: 12vh 8vw; }
+      .chef-media { max-width: 480px; margin: 0 auto; }
+      .press-grid { grid-template-columns: 1fr; gap: 2px; }
+      .tasting-courses { grid-template-columns: repeat(4, 1fr); }
+      #numbers { grid-template-columns: 1fr 1fr; }
+      .num-item:nth-child(2) { border-right: none; }
+      .ft-cols { gap: 3rem; }
+      .wine-copy { padding: 5rem 5rem 5rem 8vw; }
+    }
+
+    @media (max-width: 768px) {
+      /* NAV */
+      .nav-links { display: none; }
+      .nav-burger { display: flex; }
+      #nav { padding: 1.6rem 5vw; }
+      #nav.scrolled { padding: 1.2rem 5vw; }
+      .btn-mag { display: none; }
+
+      /* HERO */
+      .hero-left  { bottom: 10vh; left: 6vw; max-width: 85%; }
+      .hero-h1    { font-size: clamp(3.8rem, 15vw, 6rem); }
+      .hero-eyebrow { margin-bottom: 1.2rem; font-size: 0.54rem; }
+      .hero-right { display: none; }
+      .hero-address { display: none; }
+
+      /* MANIFESTO */
+      #manifesto { padding: 14vh 7vw 12vh; }
+      .manifesto-bg-word { font-size: 40vw; top: -1rem; }
+      .manifesto-attr { flex-direction: column; gap: 1rem; align-items: flex-start; }
+
+      /* ORIGINS */
+      #origins { padding: 10vh 0; }
+      .origins-copy { padding: 4rem 7vw; }
+      .origins-copy h2 { font-size: 2.2rem; }
+
+      /* NUMBERS */
+      #numbers { grid-template-columns: 1fr 1fr; }
+      .num-item { padding: 4rem 1.5rem; }
+      .num-item:nth-child(2) { border-right: none; }
+      .num-item:nth-child(3) { border-right: none; }
+      .num-val { font-size: 4rem; }
+
+      /* TASTING */
+      #tasting { padding: 14vh 7vw; }
+      .tasting-courses { grid-template-columns: repeat(2, 1fr); gap: 1px; }
+      .tasting-title { font-size: clamp(2.5rem, 10vw, 5rem); }
+      .tasting-price { font-size: 1rem; margin-bottom: 3rem; }
+      .btn-tasting { padding: 1.2rem 3rem; font-size: 0.6rem; }
+
+      /* KITCHEN */
+      #kitchen { padding: 10vh 0; }
+      .kitchen-hdr { flex-direction: column; gap: 1rem; align-items: flex-start; padding: 0 7vw 5vh; }
+      .kitchen-hdr h2 { font-size: clamp(2.2rem, 9vw, 3.5rem); }
+      .kitchen-track { padding: 0 7vw 3vh; gap: 4vw; }
+      .k-card { flex: 0 0 75vw; }
+
+      /* MENU */
+      #menu { padding: 12vh 6vw; }
+      .menu-hdr { grid-template-columns: 1fr; gap: 1rem; margin-bottom: 5vh; }
+      .menu-hdr p { text-align: left; }
+      .menu-hdr h2 { font-size: clamp(3rem, 12vw, 5rem); }
+      .menu-tabs { overflow-x: auto; -ms-overflow-style: none; scrollbar-width: none; }
+      .menu-tabs::-webkit-scrollbar { display: none; }
+      .m-tab { padding: 1rem 1.8rem; white-space: nowrap; font-size: 0.6rem; }
+      .menu-item { padding: 2rem 0; }
+      .menu-item-name { font-size: 1.6rem; flex-wrap: wrap; gap: 0.8rem; }
+      .menu-item-badge { font-size: 0.55rem; }
+      .menu-item-desc { font-size: 0.75rem; }
+      .menu-price { font-size: 1.4rem; }
+      #dish-preview { display: none; }
+
+      /* PRESS */
+      #press { padding: 10vh 6vw; }
+      .press-top { flex-direction: column; gap: 1.5rem; align-items: flex-start; }
+      .press-top h2 { font-size: 2rem; }
+      .press-grid { grid-template-columns: 1fr; }
+      .press-card { padding: 3rem 2.5rem; }
+      .press-award-row { flex-wrap: wrap; gap: 3rem; justify-content: center; padding-top: 4vh; margin-top: 5vh; }
+      .award-divider { display: none; }
+
+      /* WINE */
+      #wine { padding: 10vh 0; }
+      .wine-grid { grid-template-columns: 1fr; }
+      .wine-copy { padding: 4rem 7vw; }
+      .wine-copy h2 { font-size: 2.5rem; }
+      .wine-photo { height: 40vh; }
+      .wine-photo::before { background: linear-gradient(to bottom, var(--sage) 0%, transparent 35%); }
+
+      /* GALLERY */
+      .mi, .mi.tall { flex: 0 0 240px; width: 240px; height: 180px; }
+      .mi img, .mi.tall img { width: 100%; height: 100%; }
+
+      /* PULLQUOTE */
+      #pullquote { padding: 10vh 7vw; }
+      .pq-text { font-size: clamp(1.6rem, 7vw, 3.5rem); }
+
+      /* CHEF */
+      #chef { padding: 10vh 6vw; grid-template-columns: 1fr; gap: 4rem; }
+      .chef-media { max-width: 100%; }
+      .chef-frame { top: -1.5rem; right: -1.5rem; bottom: 1.5rem; left: 1.5rem; }
+      .chef-name { font-size: 2.2rem; }
+      .chef-copy h2 { font-size: clamp(1.8rem, 6vw, 3rem); }
+
+      /* RESERVATIONS */
+      #reservations { padding: 14vh 6vw; }
+      .res-inner h2 { font-size: clamp(2.8rem, 11vw, 5rem); }
+      .res-times { flex-direction: column; align-items: stretch; max-width: 280px; margin: 0 auto 4rem; }
+      .rt { padding: 1.5rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+      .rt-lbl { margin-bottom: 0; }
+      .btn-row { flex-direction: column; align-items: center; gap: 1rem; }
+      .btn-prim, .btn-out { padding: 1.3rem 3rem; width: 100%; max-width: 280px; text-align: center; }
+
+      /* INFO */
+      #info { grid-template-columns: 1fr; padding: 8vh 6vw; gap: 3rem; }
+
+      /* FOOTER */
+      .ft-top { flex-direction: column; gap: 3rem; padding-bottom: 4vh; }
+      .ft-cols { flex-direction: column; gap: 2.5rem; }
+      .ft-social { align-items: flex-start; }
+      .ft-logo { font-size: 2.2rem; }
+
+      /* PILL */
+      #res-pill { width: 90%; justify-content: center; }
+      .pill-sep, .pill-time { display: none; }
+    }
+
+    @media (max-width: 480px) {
+      .hero-h1 { font-size: clamp(3rem, 17vw, 4.5rem); }
+      .hero-left { bottom: 8vh; }
+      .manifesto-body { font-size: clamp(1.7rem, 7vw, 2.5rem); }
+      .tasting-courses { grid-template-columns: 1fr 1fr; }
+      .k-card { flex: 0 0 85vw; }
+      .num-item { padding: 3rem 1rem; }
+      .num-val { font-size: 3.2rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="grain"></div>
+<div id="progress-bar"></div>
+
+<!-- LOADER -->
+<div id="loader">
+  <div class="loader-crest">
+    <div class="loader-logo">L'Eredità</div>
+    <div class="loader-sub">Tuscany in Berlin · Since 1924</div>
+  </div>
+  <div class="loader-rule"><div class="loader-fill"></div></div>
+  <div class="loader-pct" id="loader-pct">Preparing the table…</div>
+</div>
+
+<!-- CURSOR -->
+<div id="cur-dot"></div>
+<div id="cur-ring"><span id="cur-label"></span></div>
+
+<!-- FLOATING RESERVATION PILL -->
+<div id="res-pill" onclick="document.getElementById('reservations').scrollIntoView({behavior:'smooth'})">
+  <span class="pill-text">Reserve a Table</span>
+  <span class="pill-sep"></span>
+  <span class="pill-time">Tonight from 18:30</span>
+</div>
+
+<!-- DISH PREVIEW -->
+<div id="dish-preview"><img id="dish-preview-img" src="" alt="" /></div>
+
+<!-- MOBILE MENU -->
+<div id="mobile-menu">
+  <a href="#origins" data-num="01" onclick="closeMobile()">La Storia</a>
+  <a href="#menu" data-num="02" onclick="closeMobile()">Il Menu</a>
+  <a href="#tasting" data-num="03" onclick="closeMobile()">Degustazione</a>
+  <a href="#wine" data-num="04" onclick="closeMobile()">La Cantina</a>
+  <a href="#chef" data-num="05" onclick="closeMobile()">Lo Chef</a>
+  <a href="#reservations" data-num="→" onclick="closeMobile()">Reserve a Table</a>
+  <div class="mobile-menu-footer">L'Eredità · Berlin · Since 1924</div>
+</div>
+
+<!-- ================================================================
+     NAVIGATION
+================================================================ -->
+<nav id="nav">
+  <div class="nav-logo">L'Eredità<sup>Berlin</sup></div>
+  <ul class="nav-links">
+    <li><a href="#origins">La Storia</a></li>
+    <li><a href="#menu">Il Menu</a></li>
+    <li><a href="#tasting">Degustazione</a></li>
+    <li><a href="#wine">Cantina</a></li>
+    <li><a href="#chef">Lo Chef</a></li>
+  </ul>
+  <div class="nav-right">
+    <button class="btn-mag" id="nav-cta" onclick="document.getElementById('reservations').scrollIntoView({behavior:'smooth'})">
+      <span class="btn-fill"></span>
+      <span class="btn-txt">Reserve</span>
+    </button>
+    <div class="nav-burger" id="burger" onclick="toggleMobile()">
+      <span></span><span></span><span></span>
+    </div>
+  </div>
+</nav>
+
+<!-- ================================================================
+     HERO
+================================================================ -->
+<section id="hero">
+  <div id="hero-media">
+    <video id="hero-video" autoplay muted loop playsinline
+      poster="hero-poster.jpg"
+      data-fallback-poster="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&q=90&w=1920"
+      onerror="this.querySelector('source').src=this.querySelector('source').dataset.fallback;this.load()">
+      <source src="hero.mp4" type="video/mp4"
+              data-fallback="https://videos.pexels.com/video-files/3196175/3196175-hd_1920_1080_30fps.mp4"/>
+    </video>
+  </div>
+
+  <!-- LEFT BLOCK: eyebrow + big title — independently absolute, always bottom-left -->
+  <div class="hero-left">
+    <div class="hero-eyebrow">Tuscany in Berlin · Since 1924</div>
+    <h1 class="hero-h1">
+      <span class="hero-line"><span class="hero-line-inner">The</span></span>
+      <span class="hero-line"><span class="hero-line-inner"><em>Slow</em></span></span>
+      <span class="hero-line"><span class="hero-line-inner">Table.</span></span>
+    </h1>
+  </div>
+
+  <!-- RIGHT BLOCK: description + scroll — independently absolute, always bottom-right -->
+  <div class="hero-right">
+    <p class="hero-desc">Where Nonna's 1924 recipes<br>meet the soul of a Berlin<br>evening. Hand-rolled.<br>Wood-fired. Unhurried.</p>
+    <div class="hero-scroll">
+      <div class="scroll-tick"></div>
+      <span>Scroll</span>
+    </div>
+  </div>
+
+  <!-- VERTICAL ADDRESS: right edge, vertically centred -->
+  <div class="hero-address">Auguststraße 14–16 · Mitte · Berlin</div>
+</section>
+
+<!-- ================================================================
+     MANIFESTO
+================================================================ -->
+<section id="manifesto">
+  <div class="manifesto-bg-word">L'Eredità</div>
+  <div class="manifesto-inner">
+    <div class="manifesto-label" id="mfst-lbl">L'Anima del Ristorante</div>
+    <div class="manifesto-body" id="mfst-body">
+      We don't do <em>Executive Dining.</em>
+      We do family. Every ribbon of pappardelle is rolled
+      by hand at <em>5:00&nbsp;AM.</em>
+      Every tomato tastes of the same
+      <em>volcanic soil</em> our great-grandfather farmed.
+      That is not a story. That is <em>simply the truth.</em>
+    </div>
+    <div class="manifesto-attr" id="mfst-attr">
+      <div class="manifesto-sig">— Famiglia Caruso</div>
+      <div class="manifesto-yr">Est. Berlin · 1924</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================
+     ORIGINS
+================================================================ -->
+<section id="origins">
+  <div class="origins-grid">
+    <div class="origins-media">
+      <img src="origins.jpg"
+           data-fallback="https://images.unsplash.com/photo-1556910103-1c02745a8057?auto=format&fit=crop&q=85&w=900"
+           onerror="if(this.src!==this.dataset.fallback)this.src=this.dataset.fallback"
+           alt="Hand-making pasta" class="origins-photo" id="origins-photo" loading="lazy"/>
+      <div class="origins-overlay"></div>
+      <div class="badge-yr sr"><strong>1924</strong>Fondato</div>
+    </div>
+    <div class="origins-copy">
+      <div class="sec-label" id="origins-lbl">La Nostra Storia</div>
+      <h2 class="sr d1">Flour, Fire,<br>and <em>Four Generations.</em></h2>
+      <p class="sr d2">Nonna Rosa rolled her first pappardelle in a farmhouse outside Siena, where the volcanic soil gave tomatoes their particular sweetness. Her grandson carried those recipes — written in pencil on flour-dusted paper — to Berlin in 1991.</p>
+      <p class="sr d2">Today, every ribbon of pasta is still rolled by hand before sunrise. Every olive oil is cold-pressed from the same Caruso groves. We call this stubbornness. Our guests call it irreplaceable.</p>
+      <div class="divider sr d3"></div>
+      <div class="origins-pullquote sr d3">
+        "Non si cambia ciò che è perfetto."
+        <small>You don't change what is already perfect.</small>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================
+     NUMBERS
+================================================================ -->
+<section id="numbers">
+  <div class="num-item sr">
+    <div class="num-val" data-count="4">0</div>
+    <div class="num-label">Generations of Recipes</div>
+  </div>
+  <div class="num-item sr d1">
+    <div class="num-val"><span data-count="5">0</span><sup>AM</sup></div>
+    <div class="num-label">Fresh Pasta, Daily</div>
+  </div>
+  <div class="num-item sr d2">
+    <div class="num-val" data-count="340">0</div>
+    <div class="num-label">Wines in the Cellar</div>
+  </div>
+  <div class="num-item sr d3">
+    <div class="num-val" data-count="1">0</div>
+    <div class="num-label">Michelin Star</div>
+  </div>
+</section>
+
+<!-- ================================================================
+     TASTING MENU — CINEMATIC
+================================================================ -->
+<section id="tasting">
+  <div class="tasting-inner">
+    <div class="tasting-eyebrow sr">Menu di Degustazione</div>
+    <h2 class="tasting-title sr d1">The Harvest<br><em>Experience</em></h2>
+    <div class="tasting-price sr d2">7 Courses · €165 per persona · Wine pairing €95</div>
+    <div class="tasting-courses sr d2">
+      <div class="course">
+        <div class="course-num">01</div>
+        <div class="course-name">Benvenuto</div>
+        <div class="course-desc">Kitchen amuse-bouche</div>
+      </div>
+      <div class="course">
+        <div class="course-num">02</div>
+        <div class="course-name">Crudo</div>
+        <div class="course-desc">Raw & cured</div>
+      </div>
+      <div class="course">
+        <div class="course-num">03</div>
+        <div class="course-name">Terra</div>
+        <div class="course-desc">Soil & root</div>
+      </div>
+      <div class="course">
+        <div class="course-num">04</div>
+        <div class="course-name">Il Primo</div>
+        <div class="course-desc">Hand-made pasta</div>
+      </div>
+      <div class="course">
+        <div class="course-num">05</div>
+        <div class="course-name">Il Mare</div>
+        <div class="course-desc">The sea</div>
+      </div>
+      <div class="course">
+        <div class="course-num">06</div>
+        <div class="course-name">La Carne</div>
+        <div class="course-desc">Fire & meat</div>
+      </div>
+      <div class="course">
+        <div class="course-num">07</div>
+        <div class="course-name">Dolcezza</div>
+        <div class="course-desc">Sweet close</div>
+      </div>
+    </div>
+    <a href="#reservations" class="btn-tasting sr d3">
+      <span class="t-fill"></span>
+      <span class="t-txt">Book the Tasting Experience</span>
+    </a>
+  </div>
+</section>
+
+<!-- ================================================================
+     KITCHEN
+================================================================ -->
+<section id="kitchen">
+  <div class="kitchen-hdr">
+    <h2 class="sr">The Art of<br><em>Slow</em> Cooking.</h2>
+    <div class="kitchen-hint sr d2">Drag to explore</div>
+  </div>
+  <div class="kitchen-track" id="kTrack">
+    <div class="k-card">
+      <img src="https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?auto=format&fit=crop&q=85&w=600" class="k-card-img" alt="Tartufo" loading="lazy"/>
+      <div class="k-card-info"><h3>Il Tartufo</h3><p>Hand-cut Tajarin · Black Truffle</p></div>
+    </div>
+    <div class="k-card">
+      <img src="https://images.unsplash.com/photo-1558030006-450675393462?auto=format&fit=crop&q=85&w=600" class="k-card-img" alt="Fire" loading="lazy"/>
+      <div class="k-card-info"><h3>Il Fuoco</h3><p>Wood-Fired · Olive Branch Flame</p></div>
+    </div>
+    <div class="k-card">
+      <img src="https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&q=85&w=600" class="k-card-img" alt="Ossobuco" loading="lazy"/>
+      <div class="k-card-info"><h3>Il Vitello</h3><p>8-Hour Braised Ossobuco</p></div>
+    </div>
+    <div class="k-card">
+      <img src="https://images.unsplash.com/photo-1559847844-5315695dadae?auto=format&fit=crop&q=85&w=600" class="k-card-img" alt="Tiramisu" loading="lazy"/>
+      <div class="k-card-info"><h3>La Dolcezza</h3><p>Nonna Rosa's Tiramisù · 1924</p></div>
+    </div>
+    <div class="k-card">
+      <img src="https://images.unsplash.com/photo-1551218808-94e220e084d2?auto=format&fit=crop&q=85&w=600" class="k-card-img" alt="Antipasti" loading="lazy"/>
+      <div class="k-card-info"><h3>L'Antipasto</h3><p>Daily Cured · Seasonal Harvest</p></div>
+    </div>
+    <div class="k-card">
+      <img src="https://images.unsplash.com/photo-1481931098730-318b6f776db0?auto=format&fit=crop&q=85&w=600" class="k-card-img" alt="Wine" loading="lazy"/>
+      <div class="k-card-info"><h3>La Cantina</h3><p>340 Italian Bottles</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================
+     MENU
+================================================================ -->
+<section id="menu">
+  <div class="menu-hdr">
+    <h2 class="sr"><em>Il Menu</em><br>del Giorno</h2>
+    <p class="sr d2">Our menu changes with the markets, the seasons, and the mood of the kitchen.</p>
+  </div>
+  <div class="menu-tabs sr">
+    <button class="m-tab active" onclick="switchTab(this,'antipasti')">Antipasti</button>
+    <button class="m-tab" onclick="switchTab(this,'primi')">Primi</button>
+    <button class="m-tab" onclick="switchTab(this,'secondi')">Secondi</button>
+    <button class="m-tab" onclick="switchTab(this,'dolci')">Dolci</button>
+  </div>
+
+  <!-- ANTIPASTI -->
+  <div class="menu-panel active" id="panel-antipasti">
+    <div class="menu-items">
+      <div class="menu-item" data-img="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&q=80&w=400">
+        <div><div class="menu-item-name">Burrata di Bufala <span class="menu-item-badge">Puglia · Daily</span></div><div class="menu-item-desc">Stracciatella, Amalfi lemon, basil oil, heirloom cherry tomatoes, aged balsamic from Modena.</div></div>
+        <div class="menu-price">€18</div>
+      </div>
+      <div class="menu-item" data-img="https://images.unsplash.com/photo-1432139555190-58524dae6a55?auto=format&fit=crop&q=80&w=400">
+        <div><div class="menu-item-name">Carpaccio di Manzo <span class="menu-item-badge">21-Day Aged</span></div><div class="menu-item-desc">Paper-thin Fassona beef, Parmigiano foam, capers, wild rocket, white truffle oil.</div></div>
+        <div class="menu-price">€26</div>
+      </div>
+      <div class="menu-item" data-img="https://images.unsplash.com/photo-1559847844-5315695dadae?auto=format&fit=crop&q=80&w=400">
+        <div><div class="menu-item-name">Polpo alla Griglia <span class="menu-item-badge">Sicilia · Charcoal</span></div><div class="menu-item-desc">Slow-braised then wood-grilled octopus, 'nduja butter, charred lemon, chickpea cream.</div></div>
+        <div class="menu-price">€29</div>
+      </div>
+      <div class="menu-item" data-img="https://images.unsplash.com/photo-1551024506-0bccd828d307?auto=format&fit=crop&q=80&w=400">
+        <div><div class="menu-item-name">Crostini di Fegato <span class="menu-item-badge">Nonna's Recipe</span></div><div class="menu-item-desc">Tuscan chicken liver pâté, hand-charred bread, pickled onions, rosemary lard, sea salt.</div></div>
+        <div class="menu-price">€16</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRIMI -->
+  <div class="menu-panel" id="panel-primi">
+    <div class="menu-items">
+      <div class="menu-item" data-img="https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?auto=format&fit=crop&q=80&w=400">
+        <div><div class="menu-item-name">Pappardelle al Ragù <span class="menu-item-badge">6-Hour Sauce</span></div><div class="menu-item-desc">Hand-rolled egg pappardelle, slow-braised wild boar ragù, aged pecorino, black pepper.</div></div>
+        <div class="menu-price">€32</div>
+      </div>
+      <div class="menu-item" data-img="https://images.unsplash.com/photo-1548943487-a2e4e43b4853?auto=format&fit=crop&q=80&w=400">
+        <div><div class="menu-item-name">Tajarin al Tartufo Nero <span class="menu-item-badge">Seasonal Truffle</span></div><div class="menu-item-desc">Fine-cut 40-egg Tajarin, Umbrian black truffle, 36-month Parmigiano Reggiano, unsalted butter.</div></div>
+        <div class="menu-price">€38</div>
+      </div>
+      <div class="menu-item" data-img="https://images.unsplash.com/photo-1476224203421-9ac39bcb3327?auto=format&fit=crop&q=80&w=400">
+        <div><div class="menu-item-name">Risotto allo Zafferano <span class="menu-item-badge">Carnaroli Reserve</span></div><div class="menu-item-desc">18-minute risotto, Grana Padano mantecatura, saffron pistils, bone marrow gremolata.</div></div>
+        <div class="menu-price">€34</div>
+      </div>
+      <div class="menu-item" data-img="https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?auto=format&fit=crop&q=80&w=400">
+        <div><div class="menu-item-name">Cacio e Pepe Rivisitata <span class="menu-item-badge">Roma · Modern</span></div><div class="menu-item-desc">Tonnarelli di semola, Pecorino Romano DOP, tellicherry black pepper, 60°C egg yolk.</div></div>
+        <div class="menu-price">€28</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECONDI -->
+  <div class="menu-panel" id="panel-secondi">
+    <div class="menu-items">
+      <div class="menu-item" data-img="https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&q=80&w=400">
+        <div><div class="menu-item-name">Ossobuco alla Milanese <span class="menu-item-badge">8-Hour Braise</span></div><div class="menu-item-desc">Cross-cut veal shank, saffron risotto, gremolata of lemon zest, parsley, and raw garlic.</div></div>
+        <div class="menu-price">€52</div>
+      </div>
+      <div class="menu-item" data-img="https://images.unsplash.com/photo-1600891964092-4316c288032e?auto=format&fit=crop&q=80&w=400">
+        <div><div class="menu-item-name">Bistecca alla Fiorentina <span class="menu-item-badge">Chianina · 600g · For Two</span></div><div class="menu-item-desc">T-bone from certified Chianina cattle, wood-fired at 800°C. Served rare. Always.</div></div>
+        <div class="menu-price">€120<small>/due</small></div>
+      </div>
+      <div class="menu-item" data-img="https://images.unsplash.com/photo-1467003909585-2f8a72700288?auto=format&fit=crop&q=80&w=400">
+        <div><div class="menu-item-name">Branzino in Crosta di Sale <span class="menu-item-badge">Liguria · Wild</span></div><div class="menu-item-desc">Whole sea bass in a salt crust, fennel and citrus, extra virgin olive oil, samphire.</div></div>
+        <div class="menu-price">€58</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DOLCI -->
+  <div class="menu-panel" id="panel-dolci">
+    <div class="menu-items">
+      <div class="menu-item" data-img="https://images.unsplash.com/photo-1559847844-5315695dadae?auto=format&fit=crop&q=80&w=400">
+        <div><div class="menu-item-name">Tiramisù della Nonna <span class="menu-item-badge">Rosa's Recipe · 1924</span></div><div class="menu-item-desc">Savoiardi, Illy espresso, Marsala, Mascarpone di Bufala, Valrhona cacao. Non-negotiable.</div></div>
+        <div class="menu-price">€14</div>
+      </div>
+      <div class="menu-item" data-img="https://images.unsplash.com/photo-1488477181946-6428a0291777?auto=format&fit=crop&q=80&w=400">
+        <div><div class="menu-item-name">Panna Cotta al Barolo <span class="menu-item-badge">Piemonte · Reduction</span></div><div class="menu-item-desc">Silky vanilla panna cotta, slow-reduced Barolo with clove and cinnamon, seasonal berries.</div></div>
+        <div class="menu-price">€13</div>
+      </div>
+      <div class="menu-item" data-img="https://images.unsplash.com/photo-1571115177098-24ec42ed204d?auto=format&fit=crop&q=80&w=400">
+        <div><div class="menu-item-name">Formaggio Stagionato <span class="menu-item-badge">3 Pieces · Rotating</span></div><div class="menu-item-desc">Rotating Italian aged cheeses, wildflower honey, walnut mostarda, seeded cracker, fresh fig.</div></div>
+        <div class="menu-price">€22</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================
+     PRESS
+================================================================ -->
+<section id="press">
+  <div class="press-top">
+    <h2 class="sr">As <em>the world</em><br>has written.</h2>
+    <div class="press-year-tag sr">2025 – 2026</div>
+  </div>
+  <div class="press-grid">
+    <div class="press-card sr">
+      <div class="press-card-outlet">Michelin Guide — 2025</div>
+      <div class="press-card-quote">"A kitchen that understands restraint is the highest form of generosity."</div>
+      <div class="press-card-stars">★ ★</div>
+    </div>
+    <div class="press-card sr d1">
+      <div class="press-card-outlet">The New York Times — T Magazine</div>
+      <div class="press-card-quote">"Perhaps the most honest Italian restaurant in Europe. It doesn't need to try."</div>
+      <div class="press-card-stars">★ ★ ★ ★ ★</div>
+    </div>
+    <div class="press-card sr d2">
+      <div class="press-card-outlet">Der Spiegel — Genuss</div>
+      <div class="press-card-quote">"Das beste italienische Restaurant Berlins braucht keine Tricks. Es hat Nonna."</div>
+      <div class="press-card-stars">★ ★ ★ ★ ★</div>
+    </div>
+  </div>
+  <div class="press-award-row sr">
+    <div class="award-badge"><div class="award-icon">★</div><div class="award-label">1 Michelin Star<br>2023 – 2026</div></div>
+    <div class="award-divider"></div>
+    <div class="award-badge"><div class="award-icon">◈</div><div class="award-label">Gambero Rosso<br>Tre Forchette</div></div>
+    <div class="award-divider"></div>
+    <div class="award-badge"><div class="award-icon">♦</div><div class="award-label">Gault&Millau<br>17 / 20</div></div>
+    <div class="award-divider"></div>
+    <div class="award-badge"><div class="award-icon">✦</div><div class="award-label">Berlin Restaurant<br>of the Year 2025</div></div>
+    <div class="award-divider"></div>
+    <div class="award-badge"><div class="award-icon">◉</div><div class="award-label">Wine Spectator<br>Award of Excellence</div></div>
+  </div>
+</section>
+
+<!-- ================================================================
+     WINE
+================================================================ -->
+<section id="wine">
+  <div class="wine-grid">
+    <div class="wine-copy">
+      <div class="sec-label" id="wine-lbl">La Cantina</div>
+      <h2 class="sr d1">340 Bottles.<br><em>One Passion.</em></h2>
+      <p class="sr d2">Assembled across three generations of Caruso palates. From a 1978 Barolo Riserva to this morning's natural Vermentino — each bottle tells a story of Italian soil, time, and restraint.</p>
+      <div class="wine-list sr d3">
+        <div class="wine-row"><div><div class="wine-name">Chianti Classico Riserva</div><div class="wine-region">Greve in Chianti · Family Estate · 2019</div></div><div class="wine-price">€18 / glass</div></div>
+        <div class="wine-row"><div><div class="wine-name">Barolo "Brunate"</div><div class="wine-region">La Morra · Piedmont · 2016</div></div><div class="wine-price">€24 / glass</div></div>
+        <div class="wine-row"><div><div class="wine-name">Vermentino di Sardegna</div><div class="wine-region">Gallura · Natural · 2022</div></div><div class="wine-price">€14 / glass</div></div>
+        <div class="wine-row"><div><div class="wine-name">Amarone della Valpolicella</div><div class="wine-region">Allegrini · Veneto · 2015</div></div><div class="wine-price">€32 / glass</div></div>
+      </div>
+    </div>
+    <div class="wine-photo">
+      <img src="wine.jpg"
+           data-fallback="https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&q=85&w=900"
+           onerror="if(this.src!==this.dataset.fallback)this.src=this.dataset.fallback"
+           alt="Wine cellar" loading="lazy"/>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================
+     GALLERY
+================================================================ -->
+<section id="gallery">
+  <div class="gallery-lbl sr">L'Atmosfera</div>
+  <div class="mrow">
+    <div class="mi"><img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&q=80&w=380" loading="lazy" alt=""/></div>
+    <div class="mi tall"><img src="https://images.unsplash.com/photo-1504754524776-8f4f37790ca0?auto=format&fit=crop&q=80&w=300" loading="lazy" alt=""/></div>
+    <div class="mi"><img src="https://images.unsplash.com/photo-1481931098730-318b6f776db0?auto=format&fit=crop&q=80&w=380" loading="lazy" alt=""/></div>
+    <div class="mi"><img src="https://images.unsplash.com/photo-1424847651672-bf20a4b0982b?auto=format&fit=crop&q=80&w=380" loading="lazy" alt=""/></div>
+    <div class="mi tall"><img src="https://images.unsplash.com/photo-1476224203421-9ac39bcb3327?auto=format&fit=crop&q=80&w=300" loading="lazy" alt=""/></div>
+    <div class="mi"><img src="https://images.unsplash.com/photo-1600891964092-4316c288032e?auto=format&fit=crop&q=80&w=380" loading="lazy" alt=""/></div>
+    <div class="mi"><img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&q=80&w=380" loading="lazy" alt=""/></div>
+    <div class="mi tall"><img src="https://images.unsplash.com/photo-1504754524776-8f4f37790ca0?auto=format&fit=crop&q=80&w=300" loading="lazy" alt=""/></div>
+    <div class="mi"><img src="https://images.unsplash.com/photo-1481931098730-318b6f776db0?auto=format&fit=crop&q=80&w=380" loading="lazy" alt=""/></div>
+    <div class="mi"><img src="https://images.unsplash.com/photo-1424847651672-bf20a4b0982b?auto=format&fit=crop&q=80&w=380" loading="lazy" alt=""/></div>
+    <div class="mi tall"><img src="https://images.unsplash.com/photo-1476224203421-9ac39bcb3327?auto=format&fit=crop&q=80&w=300" loading="lazy" alt=""/></div>
+    <div class="mi"><img src="https://images.unsplash.com/photo-1600891964092-4316c288032e?auto=format&fit=crop&q=80&w=380" loading="lazy" alt=""/></div>
+  </div>
+  <div class="mrow rev" style="margin-top:1.5vw">
+    <div class="mi"><img src="https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&q=80&w=380" loading="lazy" alt=""/></div>
+    <div class="mi tall"><img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&q=80&w=300" loading="lazy" alt=""/></div>
+    <div class="mi"><img src="https://images.unsplash.com/photo-1544148103-0773bf10d330?auto=format&fit=crop&q=80&w=380" loading="lazy" alt=""/></div>
+    <div class="mi"><img src="https://images.unsplash.com/photo-1482049016688-2d3e1b311543?auto=format&fit=crop&q=80&w=380" loading="lazy" alt=""/></div>
+    <div class="mi tall"><img src="https://images.unsplash.com/photo-1567620832903-9fc6debc209f?auto=format&fit=crop&q=80&w=300" loading="lazy" alt=""/></div>
+    <div class="mi"><img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&q=80&w=380" loading="lazy" alt=""/></div>
+    <div class="mi"><img src="https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&q=80&w=380" loading="lazy" alt=""/></div>
+    <div class="mi tall"><img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&q=80&w=300" loading="lazy" alt=""/></div>
+    <div class="mi"><img src="https://images.unsplash.com/photo-1544148103-0773bf10d330?auto=format&fit=crop&q=80&w=380" loading="lazy" alt=""/></div>
+    <div class="mi"><img src="https://images.unsplash.com/photo-1482049016688-2d3e1b311543?auto=format&fit=crop&q=80&w=380" loading="lazy" alt=""/></div>
+    <div class="mi tall"><img src="https://images.unsplash.com/photo-1567620832903-9fc6debc209f?auto=format&fit=crop&q=80&w=300" loading="lazy" alt=""/></div>
+    <div class="mi"><img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&q=80&w=380" loading="lazy" alt=""/></div>
+  </div>
+</section>
+
+<!-- ================================================================
+     PULL QUOTE
+================================================================ -->
+<section id="pullquote">
+  <div class="pq-text sr">"A plate should taste<br>like <em>somewhere.</em><br>Ours tastes like Tuscany.<br><em>Always.</em>"</div>
+  <div class="pq-attr sr d2">— Marco Caruso, Executive Chef</div>
+</section>
+
+<!-- ================================================================
+     CHEF
+================================================================ -->
+<section id="chef">
+  <div class="chef-media sr-l">
+    <div class="chef-frame"></div>
+    <img src="chef.jpg"
+         data-fallback="https://images.unsplash.com/photo-1577219491135-ce391730fb2c?auto=format&fit=crop&q=85&w=700"
+         onerror="if(this.src!==this.dataset.fallback)this.src=this.dataset.fallback"
+         alt="Chef Marco Caruso" class="chef-photo" loading="lazy"/>
+    <div class="chef-rosette">
+      <svg viewBox="0 0 100 100">
+        <defs>
+          <path id="circle-text" d="M 50,50 m -35,0 a 35,35 0 1,1 70,0 a 35,35 0 1,1 -70,0"/>
+        </defs>
+        <text font-size="9.5" font-family="Outfit, sans-serif" fill="white" letter-spacing="3" font-weight="300">
+          <textPath href="#circle-text">★ MICHELIN STARRED ★ 2023 · 2026 ·</textPath>
+        </text>
+      </svg>
+    </div>
+  </div>
+  <div class="chef-copy">
+    <div class="sec-label sr" id="chef-lbl">Lo Chef</div>
+    <h2 class="sr d1">Cooking is not<br>a skill. It is a<br><em>memory.</em></h2>
+    <div class="chef-name sr d2">Marco Caruso</div>
+    <div class="chef-title sr d2">Executive Chef · Third Generation</div>
+    <p class="chef-bio sr d3">Trained under Massimo Bottura in Modena and Alain Ducasse in Paris, Marco returned to Berlin with one conviction: the most sophisticated thing a kitchen can do is remember where it came from.</p>
+    <p class="chef-bio sr d3">"I don't chase trends. I chase the exact texture of Nonna Rosa's braised veal at 5 PM on a Sunday in 1987. That is my north star. Every plate, every service."</p>
+  </div>
+</section>
+
+<!-- ================================================================
+     RESERVATIONS
+================================================================ -->
+<section id="reservations">
+  <div class="res-bg-word">Tavola</div>
+  <div class="res-inner">
+    <div class="sec-label sr" style="justify-content:center;margin-bottom:2.5rem">Prenota il tuo Tavolo</div>
+    <h2 class="sr d1">Come. Sit.<br><em>Stay awhile.</em></h2>
+    <p class="sr d2">Dinner Tuesday – Sunday. Lunch on weekends only.<br>Private dining available for up to 24 guests.</p>
+    <div class="res-times sr d2">
+      <div class="rt"><div class="rt-lbl">Lunch</div><div class="rt-val">12:00 — 14:30</div></div>
+      <div class="rt"><div class="rt-lbl">Dinner</div><div class="rt-val">18:30 — 23:00</div></div>
+      <div class="rt"><div class="rt-lbl">Bar</div><div class="rt-val">17:00 — 00:00</div></div>
+    </div>
+    <div class="btn-row sr d3">
+      <a href="tel:+4930123456" class="btn-prim"><span class="pf"></span><span class="pt">Reserve a Table</span></a>
+      <a href="/cdn-cgi/l/email-protection#b3c3c1dac5d2c7dcf3dfd6c1d6d7dac7d29ed1d6c1dfdadd9dd7d6" class="btn-out">Private Events</a>
+    </div>
+  </div>
+</section>
+
+<!-- INFO -->
+<section id="info">
+  <div class="info-blk sr"><h3>Arrive</h3><address>Auguststraße 14–16<br/>10117 Mitte, Berlin<br/><br/><a href="#">U-Bahn: Rosenthaler Platz</a><br/>Valet parking Fri–Sat</address></div>
+  <div class="info-blk sr d1"><h3>Hours</h3><p>Tue – Fri: Dinner 18:30 – 23:00<br/>Sat – Sun: Lunch 12:00 – 14:30<br/>Sat – Sun: Dinner 18:30 – 23:00<br/><br/><em style="color:var(--terracotta)">Monday: Riposo</em></p></div>
+  <div class="info-blk sr d2"><h3>Contact</h3><p><a href="tel:+4930123456">+49 30 123 456</a><br/><a href="/cdn-cgi/l/email-protection#4e3a2f3821222f0e222b3c2b2a273a2f632c2b3c222720602a2b"><span class="__cf_email__" data-cfemail="9beffaedf4f7fadbf7fee9fefff2effab6f9fee9f7f2f5b5fffe">[email&#160;protected]</span></a><br/><br/>Same-day: Please call.<br/>Groups 8+: 48h notice required.</p></div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="ft-top">
+    <div class="ft-logo">L'Eredità<span>Tuscany in Berlin · Est. 1924</span></div>
+    <nav class="ft-cols">
+      <div class="ft-col"><h4>Restaurant</h4><ul><li><a href="#origins">La Storia</a></li><li><a href="#menu">Il Menu</a></li><li><a href="#tasting">Degustazione</a></li><li><a href="#wine">La Cantina</a></li><li><a href="#chef">Lo Chef</a></li></ul></div>
+      <div class="ft-col"><h4>Guests</h4><ul><li><a href="#reservations">Reservations</a></li><li><a href="#">Private Dining</a></li><li><a href="#">Gift Vouchers</a></li><li><a href="#">Press</a></li><li><a href="#">Careers</a></li></ul></div>
+    </nav>
+    <div class="ft-social">
+      <div class="ft-social-lbl">Follow the Table</div>
+      <div class="ft-links"><a href="#">Instagram</a><a href="#">Facebook</a><a href="#">TikTok</a></div>
+    </div>
+  </div>
+  <div class="ft-bottom">
+    <div class="ft-copy">© 2026 L'Eredità GmbH · Auguststraße 14–16, 10117 Berlin</div>
+    <div class="ft-legal"><a href="#">Impressum</a><a href="#">Datenschutz</a><a href="#">AGB</a></div>
+  </div>
+</footer>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+/* ================================================================
+   ASSET LOADER — works on file:// and http://
+   ─────────────────────────────────────────────────────────────
+   Put your files in an  assets/  folder next to this HTML:
+
+     hero.mp4          1920×1080  hero video
+     hero-poster.jpg   1920×1080  video still / poster
+     origins.jpg        900×1100  pasta / story photo
+     wine.jpg            900×1200  wine cellar photo
+     chef.jpg            700×875   chef portrait
+     tasting-bg.jpg    1600×900   tasting section bg
+
+   Missing file → CDN fallback loads automatically.
+================================================================ */
+(function(){
+
+  /* ── images: swap src to fallback on error ─────────────────── */
+  document.querySelectorAll('img[data-fallback]').forEach(function(img){
+    img.addEventListener('error', function onErr(){
+      img.removeEventListener('error', onErr);
+      if(img.src !== img.dataset.fallback){
+        img.src = img.dataset.fallback;
+      }
+    }, {once: true});
+  });
+
+  /* ── video: on error swap source to fallback and reload ────── */
+  var vid = document.getElementById('hero-video');
+  if(vid){
+    /* poster fallback */
+    var posterFb = vid.dataset.fallbackPoster;
+    if(posterFb){
+      var pi2 = new Image();
+      pi2.onerror = function(){ vid.setAttribute('poster', posterFb); };
+      pi2.src = vid.getAttribute('poster');
+    }
+
+    /* source fallback — fires when no source can be loaded */
+    vid.addEventListener('error', swapVideo, {once:true});
+    vid.addEventListener('stalled', function(){
+      setTimeout(function(){ if(vid.readyState < 2) swapVideo(); }, 4000);
+    }, {once:true});
+
+    function swapVideo(){
+      var src = vid.querySelector('source[data-fallback]');
+      if(src && src.src !== src.dataset.fallback){
+        src.setAttribute('src', src.dataset.fallback);
+        /* second fallback line */
+        var s2 = document.createElement('source');
+        s2.src  = 'https://videos.pexels.com/video-files/2829177/2829177-hd_1280_720_30fps.mp4';
+        s2.type = 'video/mp4';
+        vid.appendChild(s2);
+        vid.load();
+        vid.play().catch(function(){});
+      }
+    }
+  }
+
+  /* ── tasting bg: inject override style if local file loads ─── */
+  var tbg = new Image();
+  tbg.onload = function(){
+    var s = document.createElement('style');
+    s.textContent = "#tasting::before{background-image:url('tasting-bg.jpg')!important}";
+    document.head.appendChild(s);
+  };
+  tbg.src = 'tasting-bg.jpg';
+
+})();
+/* ================================================================
+   LOADER
+================================================================ */
+const phrases = ['Preparing the table…','Rolling the pasta…','Opening the cellar…','Lighting the fire…'];
+let pi = 0;
+const pctEl = document.getElementById('loader-pct');
+const pInt = setInterval(() => { pi = (pi+1)%phrases.length; pctEl.textContent = phrases[pi]; }, 500);
+
+window.addEventListener('load', () => {
+  clearInterval(pInt);
+  setTimeout(() => {
+    const loader = document.getElementById('loader');
+    loader.style.transition = 'opacity 1s ease';
+    loader.style.opacity = '0';
+    setTimeout(() => {
+      loader.style.display = 'none';
+      initHero();
+    }, 1000);
+  }, 2200);
+});
+
+/* ================================================================
+   CURSOR — CONTEXTUAL LABELS
+================================================================ */
+const curDot = document.getElementById('cur-dot');
+const curRing = document.getElementById('cur-ring');
+const curLbl = document.getElementById('cur-label');
+let mx = 0, my = 0, rx = 0, ry = 0;
+
+document.addEventListener('mousemove', e => {
+  mx = e.clientX; my = e.clientY;
+  curDot.style.left = mx+'px'; curDot.style.top = my+'px';
+});
+(function animRing() {
+  rx += (mx - rx) * 0.1; ry += (my - ry) * 0.1;
+  curRing.style.left = rx+'px'; curRing.style.top = ry+'px';
+  requestAnimationFrame(animRing);
+})();
+
+function setCursorState(state, label='') {
+  document.body.classList.remove('cur-hover','cur-text','cur-image');
+  if(state) document.body.classList.add(state);
+  curLbl.textContent = label;
+}
+document.querySelectorAll('a,button,.btn-mag,.btn-tasting,.btn-prim,.btn-out,.menu-item,.wine-row,.k-card,.m-tab').forEach(el => {
+  el.addEventListener('mouseenter', () => setCursorState('cur-hover'));
+  el.addEventListener('mouseleave', () => setCursorState(''));
+});
+document.querySelectorAll('.menu-item').forEach(el => {
+  el.addEventListener('mouseenter', () => setCursorState('cur-text','TASTE'));
+  el.addEventListener('mouseleave', () => setCursorState(''));
+});
+document.querySelectorAll('.mi,.k-card').forEach(el => {
+  el.addEventListener('mouseenter', () => setCursorState('cur-image','VIEW'));
+  el.addEventListener('mouseleave', () => setCursorState(''));
+});
+document.querySelectorAll('#nav-cta,#res-pill,.btn-tasting,.btn-prim').forEach(el => {
+  el.addEventListener('mouseenter', () => setCursorState('cur-text','BOOK'));
+  el.addEventListener('mouseleave', () => setCursorState(''));
+});
+
+/* ================================================================
+   SCROLL PROGRESS BAR
+================================================================ */
+const pBar = document.getElementById('progress-bar');
+window.addEventListener('scroll', () => {
+  const max = document.documentElement.scrollHeight - window.innerHeight;
+  pBar.style.width = (window.scrollY / max * 100) + '%';
+}, { passive: true });
+
+/* ================================================================
+   NAV SCROLL
+================================================================ */
+window.addEventListener('scroll', () => {
+  document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 60);
+}, { passive: true });
+
+/* ================================================================
+   FLOATING PILL
+================================================================ */
+const pill = document.getElementById('res-pill');
+window.addEventListener('scroll', () => {
+  pill.classList.toggle('visible', window.scrollY > window.innerHeight * 0.5);
+}, { passive: true });
+
+/* ================================================================
+   MOBILE MENU
+================================================================ */
+let mobileOpen = false;
+function toggleMobile() {
+  mobileOpen = !mobileOpen;
+  document.getElementById('mobile-menu').classList.toggle('open', mobileOpen);
+  const spans = document.querySelectorAll('.nav-burger span');
+  if(mobileOpen) {
+    spans[0].style.transform = 'rotate(45deg) translate(4px, 4px)';
+    spans[1].style.opacity = '0';
+    spans[2].style.transform = 'rotate(-45deg) translate(4px, -4px)';
+  } else {
+    spans.forEach(s => { s.style.transform = ''; s.style.opacity = ''; });
+  }
+}
+function closeMobile() { mobileOpen = false; document.getElementById('mobile-menu').classList.remove('open'); document.querySelectorAll('.nav-burger span').forEach(s => { s.style.transform = ''; s.style.opacity = ''; }); }
+
+/* ================================================================
+   SCROLL REVEAL (INTERSECTION OBSERVER)
+================================================================ */
+const srObs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting) { e.target.classList.add('vis'); } });
+}, { threshold: 0.1 });
+document.querySelectorAll('.sr,.sr-l,.sr-r,.sec-label,.manifesto-label,.manifesto-attr').forEach(el => srObs.observe(el));
+
+/* ================================================================
+   HERO ANIMATION
+================================================================ */
+function initHero() {
+  // Animate lines up
+  document.querySelectorAll('.hero-line-inner').forEach((li, i) => {
+    li.style.transition = `transform 1.4s cubic-bezier(0.16,1,0.3,1) ${0.05 + i * 0.16}s`;
+    li.style.transform = 'translateY(0)';
+  });
+  // Fade in supporting elements
+  ['.hero-eyebrow', '.hero-desc', '.hero-scroll', '.hero-address'].forEach((sel, i) => {
+    const el = document.querySelector(sel);
+    if (!el) return;
+    const delay = 0.55 + i * 0.18;
+    el.style.transition = `opacity 1.1s ease ${delay}s, transform 1.1s cubic-bezier(0.16,1,0.3,1) ${delay}s`;
+    el.style.opacity = '1';
+    el.style.transform = 'translateY(0)';
+  });
+}
+
+/* ================================================================
+   PARALLAX — HERO VIDEO
+================================================================ */
+window.addEventListener('scroll', () => {
+  const v = document.getElementById('hero-video');
+  if(v) v.style.transform = `scale(1.08) translateY(${window.scrollY * 0.22}px)`;
+}, { passive: true });
+
+/* ================================================================
+   PARALLAX — ORIGINS PHOTO
+================================================================ */
+window.addEventListener('scroll', () => {
+  const img = document.getElementById('origins-photo');
+  if(!img) return;
+  const rect = img.closest('section').getBoundingClientRect();
+  const prog = -rect.top / (rect.height + window.innerHeight);
+  img.style.transform = `scale(1.12) translateY(${prog * 45}px)`;
+}, { passive: true });
+
+/* ================================================================
+   COUNTING NUMBERS
+================================================================ */
+function animateCount(el, target, duration = 1800) {
+  const start = performance.now();
+  const update = (now) => {
+    const t = Math.min((now - start) / duration, 1);
+    const ease = 1 - Math.pow(1 - t, 4);
+    el.textContent = Math.round(ease * target);
+    if(t < 1) requestAnimationFrame(update);
+    else el.textContent = target;
+  };
+  requestAnimationFrame(update);
+}
+const countObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if(e.isIntersecting) {
+      const el = e.target;
+      const target = parseInt(el.dataset.count);
+      animateCount(el, target);
+      countObs.unobserve(el);
+    }
+  });
+}, { threshold: 0.5 });
+document.querySelectorAll('[data-count]').forEach(el => countObs.observe(el));
+
+/* ================================================================
+   MANIFESTO WORD SPLIT
+================================================================ */
+(function() {
+  const body = document.getElementById('mfst-body');
+  if(!body) return;
+  function splitTextNodes(node) {
+    if(node.nodeType === 3) {
+      const words = node.textContent.split(/(\s+)/);
+      const frag = document.createDocumentFragment();
+      words.forEach(w => {
+        if(/^\s+$/.test(w)) { frag.appendChild(document.createTextNode(w)); }
+        else if(w.length) {
+          const s = document.createElement('span'); s.className = 'mw';
+          const i = document.createElement('span'); i.className = 'mw-i';
+          i.textContent = w; s.appendChild(i); frag.appendChild(s);
+        }
+      });
+      node.replaceWith(frag);
+    } else if(node.nodeType === 1 && node.tagName !== 'EM') {
+      Array.from(node.childNodes).forEach(splitTextNodes);
+    }
+  }
+  const tmp = document.createElement('div');
+  tmp.innerHTML = body.innerHTML;
+  Array.from(tmp.childNodes).forEach(splitTextNodes);
+  body.innerHTML = ''; body.appendChild(tmp);
+
+  const obs = new IntersectionObserver(entries => {
+    if(entries[0].isIntersecting) {
+      body.querySelectorAll('.mw-i').forEach((w, i) => {
+        w.style.transition = `transform 0.85s cubic-bezier(0.16,1,0.3,1) ${i * 0.022}s`;
+        w.style.transform = 'translateY(0)';
+      });
+      document.getElementById('mfst-lbl').classList.add('vis');
+      document.getElementById('mfst-attr').classList.add('vis');
+      obs.disconnect();
+    }
+  }, { threshold: 0.3 });
+  obs.observe(body);
+})();
+
+/* ================================================================
+   SEC-LABELS (IDs)
+================================================================ */
+['origins-lbl','wine-lbl','chef-lbl'].forEach(id => {
+  const el = document.getElementById(id); if(!el) return;
+  const obs = new IntersectionObserver(e => { if(e[0].isIntersecting) { el.classList.add('vis'); obs.disconnect(); } }, { threshold: 0.4 });
+  obs.observe(el);
+});
+
+/* ================================================================
+   MENU TABS
+================================================================ */
+function switchTab(btn, id) {
+  document.querySelectorAll('.m-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.menu-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  const panel = document.getElementById('panel-' + id);
+  panel.classList.add('active');
+  panel.querySelectorAll('.sr').forEach(el => {
+    el.classList.remove('vis');
+    setTimeout(() => el.classList.add('vis'), 40);
+  });
+}
+
+/* ================================================================
+   FLOATING DISH IMAGE PREVIEW
+================================================================ */
+const preview = document.getElementById('dish-preview');
+const previewImg = document.getElementById('dish-preview-img');
+let previewX = 0, previewY = 0, pvx = 0, pvy = 0;
+let previewActive = false;
+
+document.querySelectorAll('.menu-item[data-img]').forEach(item => {
+  item.addEventListener('mouseenter', (e) => {
+    previewImg.src = item.dataset.img;
+    previewActive = true;
+    preview.classList.add('active');
+  });
+  item.addEventListener('mouseleave', () => {
+    previewActive = false;
+    preview.classList.remove('active');
+  });
+});
+document.addEventListener('mousemove', e => {
+  previewX = e.clientX + 30; previewY = e.clientY - 140;
+});
+(function animPreview() {
+  pvx += (previewX - pvx) * 0.12;
+  pvy += (previewY - pvy) * 0.12;
+  preview.style.left = pvx + 'px';
+  preview.style.top = pvy + 'px';
+  requestAnimationFrame(animPreview);
+})();
+
+/* ================================================================
+   KITCHEN DRAG SCROLL
+================================================================ */
+const kTrack = document.getElementById('kTrack');
+let kDown = false, kStart, kLeft;
+kTrack.addEventListener('mousedown', e => { kDown = true; kStart = e.pageX - kTrack.offsetLeft; kLeft = kTrack.scrollLeft; });
+kTrack.addEventListener('mouseleave', () => kDown = false);
+kTrack.addEventListener('mouseup', () => kDown = false);
+kTrack.addEventListener('mousemove', e => {
+  if(!kDown) return; e.preventDefault();
+  kTrack.scrollLeft = kLeft - (e.pageX - kTrack.offsetLeft - kStart) * 1.8;
+});
+
+/* ================================================================
+   MAGNETIC BUTTONS
+================================================================ */
+document.querySelectorAll('.btn-mag,.btn-prim,.btn-tasting,.nav-cta').forEach(btn => {
+  btn.addEventListener('mousemove', e => {
+    const r = btn.getBoundingClientRect();
+    const cx = r.left + r.width/2, cy = r.top + r.height/2;
+    const dx = (e.clientX - cx) * 0.35;
+    const dy = (e.clientY - cy) * 0.35;
+    btn.style.transform = `translate(${dx}px, ${dy}px)`;
+  });
+  btn.addEventListener('mouseleave', () => {
+    btn.style.transition = 'transform 0.6s cubic-bezier(0.16,1,0.3,1)';
+    btn.style.transform = 'translate(0,0)';
+    setTimeout(() => btn.style.transition = '', 600);
+  });
+  btn.addEventListener('mouseenter', () => { btn.style.transition = 'none'; });
+});
+
+/* ================================================================
+   VIDEO FALLBACK — show poster bg if video fails/stalls
+================================================================ */
+(function() {
+  const vid = document.getElementById('hero-video');
+  if(!vid) return;
+  function hideVideo() { vid.style.opacity = '0'; vid.style.pointerEvents = 'none'; }
+  vid.addEventListener('error', hideVideo);
+  setTimeout(() => { if(vid.readyState < 1) hideVideo(); }, 5000);
+})();
+</script>
+</body>
+</html>
